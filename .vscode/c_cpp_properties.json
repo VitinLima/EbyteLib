@@ -1,0 +1,20 @@
+{
+    "version": 4,
+    "configurations": [
+        {
+            "name": "main",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "~/Arduino/libraries/**",
+                // "~/.arduino15/libraries**",
+                "~/.arduino15/**"
+                // "~/.arduino15/packages/**"
+                // "~/.arduino15/packages/arduino/hardware/avr/1.8.6/libraries/**"
+            ],
+            "intelliSenseMode": "linux-gcc-x64",
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "c17",
+            "cppStandard": "gnu++17"
+        }
+    ]
+}
