@@ -26,19 +26,6 @@ WIRELESS_WAKE_UP_TIME getWirelessWakeUpTime();
 FEC_SWITCH getFECSwitch();
 TRANSMISSION_POWER getTransmissionPower();
 
-void printHEAD();
-void printADDH();
-void printADDL();
-void printParity();
-void printBaudRate();
-void printAirDataRate();
-void printChannel();
-void printTransmissionMode();
-void printIODriveMode();
-void printWirelessWakeUpTime();
-void printFECSwitch();
-void printTransmissionPower();
-
 void setHEAD(HEAD head);
 void setADDH(uint8_t addh);
 void setADDL(uint8_t addl);
