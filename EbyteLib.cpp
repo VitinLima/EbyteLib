@@ -22,6 +22,28 @@ void waitForAuxReady(){
   delay(5);
 }
 
+void initE32(){
+  e32serial.begin(9600);
+
+  // attachInterrupt(digitalPinToInterrupt(AUX), auxChangeISR, CHANGE);
+  // attachInterrupt(digitalPinToInterrupt(AUX), auxRisingISR, RISING);
+  attachInterrupt(digitalPinToInterrupt(AUX), auxFallingISR, FALLING);
+
+  pinMode(M0, OUTPUT);
+  pinMode(M1, OUTPUT);
+  pinMode(AUX, INPUT);
+
+  digitalWrite(M0, HIGH);
+  digitalWrite(M1, HIGH);
+  current_operation_mode = SLEEP;
+
+  waitForAuxReady();
+  readConfiguration();
+  waitForAuxReady();
+
+  Serial.println("Module initiated and ready to accept instructions");
+}
+
 void resetModule(){
   setSleepMode();
 
@@ -101,6 +123,26 @@ void write(uint8_t byte){
   interrupts();
 }
 
+void writeFixedTransmission(uint8_t ADDH, uint8_t ADDL, uint8_t CHAN, uint8_t* buffer, unsigned int size){
+  uint8_t transmitting_buffer[3 + size];
+  transmitting_buffer[0] = ADDH;
+  transmitting_buffer[1] = ADDL;
+  transmitting_buffer[2] = CHAN;
+  for(uint8_t i = 0; i < size; i++){
+    transmitting_buffer[i+3] = buffer[i];
+  }
+  write(transmitting_buffer, size+3);
+}
+
+void writeFixedTransmission(uint8_t ADDH, uint8_t ADDL, uint8_t CHAN, uint8_t byte){
+  uint8_t transmitting_buffer[4];
+  transmitting_buffer[0] = ADDH;
+  transmitting_buffer[1] = ADDL;
+  transmitting_buffer[2] = CHAN;
+  transmitting_buffer[3] = byte;
+  write(transmitting_buffer, 4);
+}
+
 void read(uint8_t* buffer, unsigned int size){
   unsigned int counter = 0;
   Serial.print("Reading: ");
@@ -165,21 +207,31 @@ void parseMessage(String received_message){
       break;
     case 'B':
       s = received_message.substring(1);
-      Serial.print("UART baud rate changed to"); Serial.println(s);
+      Serial.print("UART baud rate changed to "); Serial.println(s);
       setBaudRate(s.toInt());
       break;
     case 'A':
       s = received_message.substring(1);
-      Serial.print("Air data rate changed to"); Serial.println(s);
+      Serial.print("Air data rate changed to "); Serial.println(s);
       setAirDataRate(s.toInt());
       break;
     case 'T':
       s = received_message.substring(1);
-      Serial.print("Transmission power changed to"); Serial.println(s);
+      Serial.print("Transmission power changed to "); Serial.println(s);
       setTransmissionPower(s.toInt());
       break;
-    default:
+    case 'H':
       s = received_message.substring(1);
+      Serial.print("ADDH changed to "); Serial.println(s);
+      setADDH(s.toInt());
+      break;
+    case 'L':
+      s = received_message.substring(1);
+      Serial.print("ADDL changed to "); Serial.println(s);
+      setADDL(s.toInt());
+      break;
+    default:
+      s = received_message.substring(0);
       Serial.print("Channel changed to ");
       Serial.println(s);
       setChannel(s.toInt());

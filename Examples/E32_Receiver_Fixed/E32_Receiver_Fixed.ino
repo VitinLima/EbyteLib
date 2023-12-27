@@ -1,6 +1,8 @@
 #include "EbyteLib.h"
 
-uint8_t chan = 23;
+uint8_t rxChan = 23;
+uint8_t rxAddh = 0xa1;
+uint8_t rxAddl = 0x06;
 
 struct Message{
   char type[10];
@@ -31,7 +33,7 @@ void setup() {
   Serial.begin(1200);
 
   delay(1500);
-  Serial.println("Testing e32serial transparent receiver");
+  Serial.println("Testing e32serial fixed receiver");
 
   pinMode(LED_BUILTIN, OUTPUT);
   digitalWrite(LED_BUILTIN, LOW);
@@ -45,13 +47,13 @@ void setup() {
   Serial.println("Device initiated successfully");
 
   // setHEAD(DONT_SAVE_ON_POWER_DOWN);
-  setADDH(0xff);
-  setADDL(0xff);
-  setChannel(chan);
+  setADDH(rxAddh);
+  setADDL(rxAddl);
+  setChannel(rxChan);
   setParity(UART_PARITY_BIT_8N1);
   setBaudRate(TTL_UART_baud_rate_9600);
   setAirDataRate(Air_Data_Rate_9600);
-  setTransmissionMode(TRANSPARENT_TRANSMISSION_MODE);
+  setTransmissionMode(FIXED_TRANSMISSION_MODE);
   setIODriveMode(IO_DRIVE_MODE_PUSH_PULL);
   setWirelessWakeUpTime(WIRELESS_WAKE_UP_TIME_250ms);
   setFECSwitch(FEC_SWITCH_ON);

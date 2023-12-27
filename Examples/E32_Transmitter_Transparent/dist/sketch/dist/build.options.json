@@ -1,0 +1,12 @@
+#line 1 "/home/vitinho/Arduino/libraries/EbyteLib/Examples/E32_Transmitter_Transparent/dist/build.options.json"
+{
+  "additionalFiles": "../..,../../..,../../..,../../../..,../../../..,../../../../..",
+  "builtInToolsFolders": "",
+  "compiler.optimization_flags": "",
+  "customBuildProperties": "",
+  "fqbn": "MiniCore:avr:328:bootloader=uart0,eeprom=keep,variant=modelP,BOD=2v7,LTO=Os_flto,clock=8MHz_internal",
+  "hardwareFolders": "/home/vitinho/.arduino15/packages",
+  "otherLibrariesFolders": "/home/vitinho/Arduino/libraries",
+  "runtime.ide.version": "10607",
+  "sketchLocation": "/home/vitinho/Arduino/libraries/EbyteLib/Examples/E32_Transmitter_Transparent"
+}

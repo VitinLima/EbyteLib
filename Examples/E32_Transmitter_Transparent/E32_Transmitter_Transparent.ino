@@ -7,7 +7,7 @@ void setup() {
   Serial.begin(1200);
 
   delay(1500);
-  Serial.println("Testing e32serial");
+  Serial.println("Testing e32serial transparent transmitter");
 
   pinMode(LED_BUILTIN, OUTPUT);
   digitalWrite(LED_BUILTIN, LOW);
@@ -80,41 +80,6 @@ void loop() {
     write((uint8_t*)&message, sizeof(message));
     Serial.println(getTransmissionResult());
   }
-  // if(transmissionSuccess){
-  //   digitalWrite(LED_BUILTIN, HIGH);
-  //   delay(50);
-  //   digitalWrite(LED_BUILTIN, LOW);
-  // }else{
-  //   digitalWrite(LED_BUILTIN, HIGH);
-  //   delay(50);
-  //   digitalWrite(LED_BUILTIN, LOW);
-  //   delay(50);
-  //   digitalWrite(LED_BUILTIN, HIGH);
-  //   delay(50);
-  //   digitalWrite(LED_BUILTIN, LOW);
-  // }
-}
-
-void initE32(){
-  e32serial.begin(9600);
-
-  // attachInterrupt(digitalPinToInterrupt(AUX), auxChangeISR, CHANGE);
-  // attachInterrupt(digitalPinToInterrupt(AUX), auxRisingISR, RISING);
-  attachInterrupt(digitalPinToInterrupt(AUX), auxFallingISR, FALLING);
-
-  pinMode(M0, OUTPUT);
-  pinMode(M1, OUTPUT);
-  pinMode(AUX, INPUT);
-
-  digitalWrite(M0, HIGH);
-  digitalWrite(M1, HIGH);
-  current_operation_mode = SLEEP;
-
-  waitForAuxReady();
-  readConfiguration();
-  waitForAuxReady();
-
-  Serial.println("Module initiated and ready to accept instructions");
 }
 
 void serialEvent(){
@@ -130,3 +95,26 @@ void serialEvent(){
     }
   }
 }
+
+
+// void initE32(){
+//   e32serial.begin(9600);
+
+//   // attachInterrupt(digitalPinToInterrupt(AUX), auxChangeISR, CHANGE);
+//   // attachInterrupt(digitalPinToInterrupt(AUX), auxRisingISR, RISING);
+//   attachInterrupt(digitalPinToInterrupt(AUX), auxFallingISR, FALLING);
+
+//   pinMode(M0, OUTPUT);
+//   pinMode(M1, OUTPUT);
+//   pinMode(AUX, INPUT);
+
+//   digitalWrite(M0, HIGH);
+//   digitalWrite(M1, HIGH);
+//   current_operation_mode = SLEEP;
+
+//   waitForAuxReady();
+//   readConfiguration();
+//   waitForAuxReady();
+
+//   Serial.println("Module initiated and ready to accept instructions");
+// }
