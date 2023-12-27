@@ -16,7 +16,7 @@ Message message;
 unsigned int message_index = 0;
 
 /* 
-  Found this elegant code here :https://forum.arduino.cc/t/quickly-reversing-a-byte/115529/3
+  Found this elegant code here: https://forum.arduino.cc/t/quickly-reversing-a-byte/115529/3
   Ended up not using it though
 */
 uint8_t inverse_byte(uint8_t b){
