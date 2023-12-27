@@ -2,11 +2,8 @@
 #include "EbyteLib.h"
 
 void waitForAuxReady(){
-  // Serial.print("Waiting for aux ready pin ");
-  // Serial.println(AUX);
   delay(50);
   while(!digitalRead(AUX));
-  // Serial.println("Aux ready");
   delay(5);
 }
 
@@ -26,23 +23,25 @@ void initE32(){
   current_operation_mode = SLEEP;
 
   waitForAuxReady();
+  DSerial("Reading configuration");
   readConfiguration();
+  DSerial("done");
   waitForAuxReady();
 
-  Serial.println("Module initiated and ready to accept instructions");
+  DSerial("Module initiated and ready to accept instructions");
 }
 
 void resetModule(){
   setSleepMode();
 
-  Serial.println("Reseting module");
+  DSerial("Reseting module");
 
   e32serial.write(0xC4);
   e32serial.write(0xC4);
   e32serial.write(0xC4);
 
   if(digitalRead(AUX)){
-    Serial.println("Module is not resetting, error");
+    DSerial("Module is not resetting, error");
     while(1);
   }
 
@@ -52,32 +51,35 @@ void resetModule(){
 
   waitForAuxReady();
   // delay(1000);
-  Serial.println("Module has been reset successfully");
+  DSerial("Module has been reset successfully");
 }
 
 void auxChangeISR(){
-  // Serial.println("Aux change");
+  // DSerial("Aux change");
 }
 
 void auxRisingISR(){
-  // Serial.println("Aux rising");
+  // DSerial("Aux rising");
   auxHighFlag = true;
   attachInterrupt(digitalPinToInterrupt(AUX), auxFallingISR, FALLING);
+  // if(asyncronousTransmissionFlag){
+  //   asyncronousTransmissionCallback();
+  // }
 }
 void auxFallingISR(){
-  // Serial.println("Aux falling");
+  // DSerial("Aux falling");
   auxLowFlag = true;
   attachInterrupt(digitalPinToInterrupt(AUX), auxRisingISR, RISING);
   // while(!digitalRead(AUX));
-  // Serial.println("Aux rising");
+  // DSerial("Aux rising");
 }
 
 // void onAuxHigh(){
-//   Serial.println("Aux High");
+//   DSerial("Aux High");
 //   auxHighInterrupt = true;
 // }
 
 // void onAuxLow(){
-//   Serial.println("Aux Low");
+//   DSerial("Aux Low");
 //   auxLowInterrupt = true;
 // }

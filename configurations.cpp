@@ -183,10 +183,10 @@ void setADDL(uint8_t addl){
 }
 
 void setParity(UART_PARITY_BIT parity){
-  Serial.println(configuration.parameters.SPED.byte, BIN);
+  DSerialln(configuration.parameters.SPED.byte, BIN);
   configuration.parameters.SPED.bits.UART_parity_bit = parity;
-  Serial.println(parity, BIN);
-  Serial.println(configuration.parameters.SPED.byte, BIN);
+  DSerialln(parity, BIN);
+  DSerialln(configuration.parameters.SPED.byte, BIN);
 }
 
 void setBaudRate(TTL_UART_BAUD_RATE baudRate){
@@ -294,7 +294,7 @@ void readConfiguration(){
   setSleepMode();
   // flush_e32serial("flush get1");
 
-  Serial.println("Reading configuration from module");
+  DSerialln("Reading configuration from module");
 
   waitForAuxReady();
 
@@ -305,36 +305,39 @@ void readConfiguration(){
   write(buffer, 3);
 
   int counter = 0;
+  DSerialln("Waiting for response");
   while(counter<6){
     if(e32serial.available()){
       configuration.bytes[counter++] = e32serial.read();
+    } else{
+      DSerialln("nothing yet");
     }
   }
 
   waitForAuxReady();
-  Serial.print("\t");printHEAD();
-  Serial.print("\t");printADDH();
-  Serial.print("\t");printADDL();
-  Serial.print("\t");printParity();
-  Serial.print("\t");printBaudRate();
-  Serial.print("\t");printAirDataRate();
-  Serial.print("\t");printChannel();
-  Serial.print("\t");printTransmissionMode();
-  Serial.print("\t");printTransmissionPower();
+  DSerial("\t");printHEAD();
+  DSerial("\t");printADDH();
+  DSerial("\t");printADDL();
+  DSerial("\t");printParity();
+  DSerial("\t");printBaudRate();
+  DSerial("\t");printAirDataRate();
+  DSerial("\t");printChannel();
+  DSerial("\t");printTransmissionMode();
+  DSerial("\t");printTransmissionPower();
 }
 
 void setConfiguration(){
   setSleepMode();
 
-  Serial.println("Setting configuration to module");
+  DSerialln("Setting configuration to module");
 
-  Serial.print("\t");
+  DSerial("\t");
   write(configuration.bytes, 6);
 
-  Serial.println("Waiting for response");
+  DSerialln("Waiting for response");
   uint8_t params[6];
 
-  Serial.print("\t");
+  DSerial("\t");
   read(params, 6);
 
   uint8_t b;
@@ -342,11 +345,11 @@ void setConfiguration(){
     b = params[i];
     if(configuration.bytes[i] != b){
       
-      Serial.print("Failed to set configurations in byte ");
-      Serial.println(i);
-      Serial.print(configuration.bytes[i], HEX);
-      Serial.print(" != ");
-      Serial.println(b, HEX);
+      DSerial("Failed to set configurations in byte ");
+      DSerialln(i);
+      DSerial(configuration.bytes[i], HEX);
+      DSerial(" != ");
+      DSerialln(b, HEX);
       while(1);
     }
   }

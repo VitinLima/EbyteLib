@@ -1,0 +1,4 @@
+[wokwi]
+version = 1
+firmware = '${workspaceFolder}/Examples/dist/E32_Transmitter_Fixed.ino.hex'
+elf = '${workspaceFolder}/Examples/dist/E32_Transmitter_Fixed.ino.elf'
