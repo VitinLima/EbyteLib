@@ -8,8 +8,6 @@
 #include "debugging.h"
 #include "Utils.h"
 
-extern uint8_t ver[];
-
 class EByte32LoRa{
     public:
 
@@ -20,9 +18,6 @@ class EByte32LoRa{
 void initE32();
 void waitForAuxReady();
 void resetModule();
-void getVersionInformation();
-
-void flush_e32serial(String msg);
 
 void auxChangeISR();
 void auxRisingISR();

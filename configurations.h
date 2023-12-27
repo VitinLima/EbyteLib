@@ -40,7 +40,7 @@ void setIODriveMode(IO_DRIVE_MODE IODriveMode);
 void setWirelessWakeUpTime(WIRELESS_WAKE_UP_TIME wirelessWakeUpTime);
 void setFECSwitch(FEC_SWITCH FECSwitch);
 void setTransmissionPower(TRANSMISSION_POWER power);
-void setTransmissionPower(uint8_t power);
+void setTransmissionPower(uint8_t power); // Remove later
 
 void readConfiguration();
 void setConfiguration();

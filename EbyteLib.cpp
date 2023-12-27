@@ -1,18 +1,6 @@
 #include "Arduino.h"
 #include "EbyteLib.h"
 
-uint8_t ver[4];
-
-void flush_e32serial(String msg){
-  delay(2000);
-  Serial.print(msg);Serial.print(" ");
-  while(e32serial.available()){
-    Serial.print((uint8_t)e32serial.read(), HEX);
-    Serial.print(" ");
-  }
-  Serial.println("");
-}
-
 void waitForAuxReady(){
   // Serial.print("Waiting for aux ready pin ");
   // Serial.println(AUX);
@@ -65,33 +53,6 @@ void resetModule(){
   waitForAuxReady();
   // delay(1000);
   Serial.println("Module has been reset successfully");
-}
-
-void getVersionInformation(){
-  setSleepMode();
-
-  Serial.print("Module version information: ");
-
-  e32serial.write(0xC3);
-  e32serial.write(0xC3);
-  e32serial.write(0xC3);
-
-  int counter = 0;
-  while(counter<4){
-    if(e32serial.available()){
-      // Serial.println(e32serial.peek(), HEX);
-      ver[counter++] = e32serial.read();
-    }
-  }
-
-  waitForAuxReady();
-  Serial.print(ver[0], HEX);
-  Serial.print(" ");
-  Serial.print(ver[1], HEX);
-  Serial.print(" ");
-  Serial.print(ver[2], HEX);
-  Serial.print(" ");
-  Serial.println(ver[3], HEX);
 }
 
 void auxChangeISR(){

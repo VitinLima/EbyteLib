@@ -8,6 +8,12 @@
 #include "configurations.h"
 #include "debugging.h"
 
+extern uint8_t ver[];
+
+void flush_e32serial(String msg);
+
+void getVersionInformation();
+
 void printHEAD();
 void printADDH();
 void printADDL();
