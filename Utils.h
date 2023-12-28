@@ -28,6 +28,10 @@ void printConfiguration();
 void getVersionInformation();
 void printVersionInformation();
 
+void printTransmissionResult(unsigned long int timeout);
+
+bool waitForTimeout(bool (*foo()), unsigned long int timeout);
+
 void parseMessage(String received_message);
 
 #endif

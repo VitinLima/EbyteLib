@@ -82,7 +82,7 @@ void loop() {
     write((uint8_t*)&message, sizeof(message));
     Serial.println(getTransmissionResult());
   }
-  // if(transmissionSuccess){
+  // if(getTransmissionResult){
   //   digitalWrite(LED_BUILTIN, HIGH);
   //   delay(50);
   //   digitalWrite(LED_BUILTIN, LOW);

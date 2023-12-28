@@ -11,17 +11,16 @@
 #define FIFO_BUFFER_MAX_LENGTH 256
 
 extern bool asyncronousTransmissionFlag;
-extern bool transmission_finished;
 extern bool fifo_buffer_overflow;
-extern const uint8_t fifo_buffer[FIFO_BUFFER_MAX_LENGTH];
+extern uint8_t fifo_buffer[FIFO_BUFFER_MAX_LENGTH];
 extern unsigned int fifo_buffer_length;
 extern unsigned int fifo_buffer_pointer;
 extern unsigned int write_fifo_buffer_pointer;
 extern const unsigned int fifo_buffer_max_length;
-extern const uint8_t fifo_helper_buffer[58];
+extern uint8_t fifo_helper_buffer[58];
 
 void asyncronousTransmissionCallback();
-void write_to_fifo();
+void write_to_fifo(uint8_t* buffer, unsigned int size);
 
 void print(const char* message);
 void printFixedTransmission(uint8_t ADDH, uint8_t ADDL, uint8_t CHAN, const char* message);
@@ -30,14 +29,13 @@ void write(uint8_t* buffer, unsigned int size);
 void write(uint8_t byte);
 void writeFixedTransmission(uint8_t ADDH, uint8_t ADDL, uint8_t CHAN, uint8_t* buffer, unsigned int size);
 void writeFixedTransmission(uint8_t ADDH, uint8_t ADDL, uint8_t CHAN, uint8_t byte);
+
 void asyncronousWrite(uint8_t* buffer, unsigned int size);
 void asyncronousWrite(uint8_t byte);
 void asyncronouswriteFixedTransmission(uint8_t ADDH, uint8_t ADDL, uint8_t CHAN, uint8_t* buffer, unsigned int size);
 void asyncronouswriteFixedTransmission(uint8_t ADDH, uint8_t ADDL, uint8_t CHAN, uint8_t byte);
 
 void read(uint8_t* buffer, unsigned int size);
-
-const char* getTransmissionResult();
-bool transmissionSuccess();
+bool getTransmissionResult(unsigned long int timeout);
 
 #endif

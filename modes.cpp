@@ -4,7 +4,7 @@
 void setSleepMode(){
   if(current_operation_mode == SLEEP) return;
 
-  Serial.println("Setting module in sleep mode");
+  DSerial("Setting module in sleep mode");
   digitalWrite(M0, HIGH);
   digitalWrite(M1, HIGH);
 
@@ -15,7 +15,7 @@ void setSleepMode(){
 void setNormalMode(){
   if(current_operation_mode == NORMAL) return;
 
-  Serial.println("Setting module in normal mode");
+  DSerial("Setting module in normal mode");
   digitalWrite(M0, LOW);
   digitalWrite(M1, LOW);
 
@@ -26,7 +26,7 @@ void setNormalMode(){
 void setWakeUpMode(){
   if(current_operation_mode == WAKE_UP) return;
 
-  Serial.println("Setting module in wake up mode");
+  DSerial("Setting module in wake up mode");
   digitalWrite(M0, LOW);
   digitalWrite(M1, HIGH);
 
@@ -37,7 +37,7 @@ void setWakeUpMode(){
 void setPowerSavingMode(){
   if(current_operation_mode == POWER_SAVING) return;
 
-  Serial.println("Setting module in power saving mode");
+  DSerial("Setting module in power saving mode");
   digitalWrite(M0, HIGH);
   digitalWrite(M1, LOW);
 

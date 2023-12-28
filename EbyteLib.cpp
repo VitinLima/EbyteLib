@@ -2,10 +2,12 @@
 #include "EbyteLib.h"
 
 bool receivingFlag = false;
+extern bool writing_to_device = false;
+bool transmission_finished = false;
+bool transmission_started = false;
 
 void waitForAuxReady(){
   DSerial("Waiting for aux ready");
-  // delay(50);
   while(!digitalRead(AUX));
   delay(5);
   DSerial("Done");
@@ -62,7 +64,7 @@ void resetModule(){
 //   // DSerial("Aux change");
 // }
 
-#define DBG
+// #define DBG
 #ifdef DBG
 #define DSerial(...) GET_MACRO(__VA_ARGS__, DSerial2, DSerial1)(__VA_ARGS__)
 #define DSerialln(...) GET_MACRO(__VA_ARGS__, DSerialln2, DSerialln1)(__VA_ARGS__)
@@ -82,7 +84,9 @@ void auxRisingISR(){
     case NORMAL:
       if(asyncronousTransmissionFlag){
         asyncronousTransmissionCallback();
-      } else{
+      } else if(transmission_started){
+        transmission_finished;
+      }else{
         attachInterrupt(digitalPinToInterrupt(AUX), auxFallingISR, FALLING);
       }
       break;
@@ -94,14 +98,14 @@ void auxRisingISR(){
 void auxFallingISR(){
   DSerialln("Aux falling");
   auxLowFlag = true;
-  // switch(current_operation_mode){
-  //   case NORMAL:
+  switch(current_operation_mode){
+    case NORMAL:
       attachInterrupt(digitalPinToInterrupt(AUX), auxRisingISR, RISING);
-  //     break;
-  //   case SLEEP:
-  //     attachInterrupt(digitalPinToInterrupt(AUX), auxFallingISR, FALLING);
-  //     break;
-  // }
+      break;
+    case SLEEP:
+      attachInterrupt(digitalPinToInterrupt(AUX), auxFallingISR, FALLING);
+      break;
+  }
 }
 
 #ifdef DBG

@@ -172,6 +172,26 @@ void getVersionInformation(){
   waitForAuxReady();
 }
 
+void printTransmissionResult(unsigned long int timeout){
+  long unsigned int timeout_limit = millis() + timeout;
+  while(millis() < timeout_limit){
+    if(transmission_finished){
+      Serial.println("Success");
+    }
+  }
+  Serial.println("Timeout");
+}
+
+bool waitForTimeout(bool (*foo()), unsigned long int timeout){
+  long unsigned int timeout_limit = millis() + timeout;
+  while(millis() < timeout_limit){
+    if(foo()){
+      return true;
+    }
+  }
+  return false;
+}
+
 void printVersionInformation(){
   Serial.print("Module version information: ");
 

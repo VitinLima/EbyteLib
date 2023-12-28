@@ -6,7 +6,6 @@ void setup() {
   // put your setup code here, to run once:
   Serial.begin(57600);
 
-  delay(1500);
   Serial.println("Testing e32serial asynchronous transparent transmitter");
 
   pinMode(LED_BUILTIN, OUTPUT);
@@ -61,26 +60,27 @@ struct Message{
 
 void loop() {
   // put your main code here, to run repeatedly:
+  checkSerials();
 
-  const int N = 4;
-  uint8_t buffer[N];
-  for(int i = 0; i < N-1; i++){
+  const int N = 100;
+  uint8_t buffer[N+1];
+  for(int i = 0; i < N; i++){
     buffer[i] = 0xA1;
   }
-  buffer[N-1] = (uint8_t)'\n';
+  buffer[N] = (uint8_t)'\n';
 
   if(state_sending){
     // asyncronousWrite(0xA1);
-    asyncronousWrite(buffer, N);
+    asyncronousWrite(buffer, N+1);
 
     // write(0xA1);
     // write(message, 4);
 
     // write((uint8_t*)&message, sizeof(message));
-    Serial.println(getTransmissionResult());
+    printTransmissionResult(2000);
   }
 
-  delay(200);
+  delay(500);
 }
 
 void checkSerials(){

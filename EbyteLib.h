@@ -9,6 +9,9 @@
 #include "Utils.h"
 
 extern bool receivingFlag;
+extern bool writing_to_device;
+extern bool transmission_started;
+extern bool transmission_finished;
 
 class EByte32LoRa{
     public:

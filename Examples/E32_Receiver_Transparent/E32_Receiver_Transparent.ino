@@ -36,7 +36,6 @@ void setup() {
   // put your setup code here, to run once:
   Serial.begin(57600);
 
-  delay(1500);
   Serial.println("Testing e32serial transparent receiver");
 
   pinMode(LED_BUILTIN, OUTPUT);
