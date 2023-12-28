@@ -177,6 +177,7 @@ void printTransmissionResult(unsigned long int timeout){
   while(millis() < timeout_limit){
     if(transmission_finished){
       Serial.println("Success");
+      return;
     }
   }
   Serial.println("Timeout");

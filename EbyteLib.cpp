@@ -98,12 +98,14 @@ void auxRisingISR(){
 void auxFallingISR(){
   DSerialln("Aux falling");
   auxLowFlag = true;
+  attachInterrupt(digitalPinToInterrupt(AUX), auxFallingISR, RISING);
   switch(current_operation_mode){
     case NORMAL:
-      attachInterrupt(digitalPinToInterrupt(AUX), auxRisingISR, RISING);
+      if(writing_to_device){
+        transmission_started = true;
+      }
       break;
     case SLEEP:
-      attachInterrupt(digitalPinToInterrupt(AUX), auxFallingISR, FALLING);
       break;
   }
 }
