@@ -11,17 +11,30 @@ unsigned int write_fifo_buffer_pointer = 0;
 const unsigned int fifo_buffer_max_length = FIFO_BUFFER_MAX_LENGTH;
 const uint8_t fifo_helper_buffer[58];
 
+#define DBG
+#ifdef DBG
+#define DSerial(...) GET_MACRO(__VA_ARGS__, DSerial2, DSerial1)(__VA_ARGS__)
+#define DSerialln(...) GET_MACRO(__VA_ARGS__, DSerialln2, DSerialln1)(__VA_ARGS__)
+#define ON_DEBUG(x) {x};
+#define Dinput(x) {input(x);}
+#else
+#define DSerial(...)
+#define DSerialln(...)
+#define ON_DEBUG(x)
+#define Dinput(x)
+#endif
+
 void asyncronousTransmissionCallback(){
   uint8_t *transmitting_buffer;
-  D3Serialln(fifo_buffer_length);
-  D3Serialln(fifo_buffer_pointer);
-  D3Serialln(fifo_buffer_max_length);
-  D3Serialln("");
+  DSerialln(fifo_buffer_length);
+  DSerialln(fifo_buffer_pointer);
+  DSerialln(fifo_buffer_max_length);
+  DSerialln("");
   if(fifo_buffer_pointer+fifo_buffer_length <= fifo_buffer_max_length){ // faster
-    D3Serialln("Transmitting buffer fifo");
+    DSerialln("Transmitting buffer fifo");
     transmitting_buffer = (uint8_t*)&fifo_buffer[fifo_buffer_pointer];
   } else{ // use helper fifo, have to copy contents, slightly slower
-    D3Serialln("Transmitting buffer helper");
+    DSerialln("Transmitting buffer helper");
     transmitting_buffer = (uint8_t*)fifo_helper_buffer;
     uint8_t k = 0;
     // unsigned int i = ;
@@ -32,35 +45,35 @@ void asyncronousTransmissionCallback(){
       r = 58;
     }
     while(fifo_buffer_pointer < fifo_buffer_max_length){
-      D3Serial(k);
-      D3Serial(" ");
-      D3Serial(fifo_buffer_pointer);
-      D3Serial(" ");
-      D3Serialln(r);
+      DSerial(k);
+      DSerial(" ");
+      DSerial(fifo_buffer_pointer);
+      DSerial(" ");
+      DSerialln(r);
       ((uint8_t*)fifo_helper_buffer)[k++] = fifo_buffer[fifo_buffer_pointer++];
     }
-    D3Serialln("Second part");
+    DSerialln("Second part");
     fifo_buffer_pointer = 0;
     while(k < r){
-      D3Serial(k);
-      D3Serial(" ");
-      D3Serial(fifo_buffer_pointer);
-      D3Serial(" ");
-      D3Serialln(r);
+      DSerial(k);
+      DSerial(" ");
+      DSerial(fifo_buffer_pointer);
+      DSerial(" ");
+      DSerialln(r);
       ((uint8_t*)fifo_helper_buffer)[k++] = fifo_buffer[fifo_buffer_pointer++];
     }
   }
   if(fifo_buffer_length < 58){ // can send all remaining bytes together
-    D3Serialln("Last packet");
+    DSerialln("Last packet");
     write(transmitting_buffer, fifo_buffer_length);
-    D3Serialln("Transmission finished");
+    DSerialln("Transmission finished");
     asyncronousTransmissionFlag = false; // all bytes transmitted, end asyncronous transmission
     transmission_finished = true;
     // detachInterrupt(digitalPinToInterrupt(AUX));
     fifo_buffer_pointer += fifo_buffer_length;
     fifo_buffer_length = 0;
   } else{ // send next 58 bytes, wait for finishing and send the rest
-    D3Serialln("Transmitting packet");
+    DSerialln("Transmitting packet");
     write(transmitting_buffer, 58);
     fifo_buffer_pointer += 58;
     fifo_buffer_length -= 58;
@@ -68,11 +81,19 @@ void asyncronousTransmissionCallback(){
   if(fifo_buffer_pointer==fifo_buffer_max_length){
     fifo_buffer_pointer = 0;
   }
-  D3Serialln(fifo_buffer_length);
-  D3Serialln(fifo_buffer_pointer);
-  D3Serialln("");
-  D3Serialln("");
+  DSerialln(fifo_buffer_length);
+  DSerialln(fifo_buffer_pointer);
+  DSerialln("");
+  DSerialln("");
 }
+
+#ifdef DBG
+#undef DBG
+#define DSerial(...)
+#define DSerialln(...)
+#define ON_DEBUG(x)
+#define Dinput(x)
+#endif
 
 void write_to_fifo(uint8_t* buffer, unsigned int size){
   unsigned int k = 0;

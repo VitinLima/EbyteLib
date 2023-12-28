@@ -94,14 +94,14 @@ void auxRisingISR(){
 void auxFallingISR(){
   DSerialln("Aux falling");
   auxLowFlag = true;
-  switch(current_operation_mode){
-    case NORMAL:
+  // switch(current_operation_mode){
+  //   case NORMAL:
       attachInterrupt(digitalPinToInterrupt(AUX), auxRisingISR, RISING);
-      break;
-    case SLEEP:
-      attachInterrupt(digitalPinToInterrupt(AUX), auxFallingISR, FALLING);
-      break;
-  }
+  //     break;
+  //   case SLEEP:
+  //     attachInterrupt(digitalPinToInterrupt(AUX), auxFallingISR, FALLING);
+  //     break;
+  // }
 }
 
 #ifdef DBG

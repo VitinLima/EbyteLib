@@ -62,26 +62,16 @@ struct Message{
 void loop() {
   // put your main code here, to run repeatedly:
 
-  if(message_received){
-    message_received = false;
-    if(received_message.length()==0){
-      state_sending = !state_sending;
-      Serial.print("Toggled sending state to ");
-      Serial.println(state_sending);
-    } else{
-      parseMessage(received_message);
-    }
-  }
-
-  delay(200);
-
-  uint8_t buffer[64];
-  for(int i = 0; i < 64; i++){
+  const int N = 4;
+  uint8_t buffer[N];
+  for(int i = 0; i < N-1; i++){
     buffer[i] = 0xA1;
   }
+  buffer[N-1] = (uint8_t)'\n';
+
   if(state_sending){
     // asyncronousWrite(0xA1);
-    asyncronousWrite(buffer, 64);
+    asyncronousWrite(buffer, N);
 
     // write(0xA1);
     // write(message, 4);
@@ -89,9 +79,24 @@ void loop() {
     // write((uint8_t*)&message, sizeof(message));
     Serial.println(getTransmissionResult());
   }
+
+  delay(200);
 }
 
-void serialEvent(){
+void checkSerials(){
+  checkSerial();
+  checkE32Serial();
+}
+
+void checkE32Serial(){
+  char c;
+  if(e32serial.available()){
+    c = e32serial.read();
+    Serial.println((uint8_t)c, HEX);
+  }
+}
+
+void checkSerial(){
   char c;
   while(Serial.available() && !message_received){
     c = Serial.read();
@@ -101,6 +106,17 @@ void serialEvent(){
       message_received = true;
     } else{
       receiving_message += c;
+    }
+  }
+
+  if(message_received){
+    message_received = false;
+    if(received_message.length()==0){
+      state_sending = !state_sending;
+      Serial.print("Toggled sending state to ");
+      Serial.println(state_sending);
+    } else{
+      parseMessage(received_message);
     }
   }
 }

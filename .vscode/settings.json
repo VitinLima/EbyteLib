@@ -1,4 +1,10 @@
 {
-    "arduino.analyzeOnSettingChange": true,
-    "vscode-serial-monitor.lineEnding": "\n"
+    "arduino.analyzeOnSettingChange": false,
+    "vscode-serial-monitor.lineEnding": "\n",
+    "triggerTaskOnSave.tasks": {
+        "Auto load Arduino sketch": [
+            "*.ino"
+        ]
+    },
+    "arduino.analyzeOnOpen": false
 }

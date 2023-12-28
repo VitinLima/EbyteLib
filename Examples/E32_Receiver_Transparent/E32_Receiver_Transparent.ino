@@ -15,6 +15,12 @@ struct Message{
 Message message;
 unsigned int message_index = 0;
 
+// class StrMessage{
+//   bool msgReceived;
+//   String incommingMessage = "";
+//   String message = "";
+// };
+
 /* 
   Found this elegant code here: https://forum.arduino.cc/t/quickly-reversing-a-byte/115529/3
   Ended up not using it though
@@ -74,21 +80,34 @@ String receiving_message = "";
 String received_message = "";
 bool message_received = false;
 
+unsigned int e32Counter = 0;
+
+// String e32_receiving_message = "";
+// String e32_received_message = "";
+// bool e32_message_received = false;
+
 void loop() {
   // put your main code here, to run repeatedly:
+  checkSerials();
+}
 
-  if(message_received){
-    message_received = false;
-    if(received_message.length()==0){
-      message_index = 0;
-      Serial.println("Set message index to 0");
-    } else{
-      parseMessage(received_message);
+void checkSerials(){
+  checkSerial();
+  checkE32Serial();
+}
+
+void checkE32Serial(){
+  char c;
+  while(e32serial.available()){
+    c = e32serial.read();
+    if(c=='\n'){
+      Serial.print("Message length: ");
+      Serial.println(e32Counter);
+      e32Counter = 0;
+    }else{
+      e32Counter++;
+      Serial.println((uint8_t)c, HEX);
     }
-  }
-
-  if(e32serial.available()){
-    Serial.println((uint8_t)e32serial.read(), HEX);
     // ((uint8_t*)&message)[message_index++] = (uint8_t)e32serial.read();
     // if(message_index==sizeof(message)){
     //   message_index = 0;
@@ -104,7 +123,7 @@ void loop() {
   }
 }
 
-void serialEvent(){
+void checkSerial(){
   char c;
   while(Serial.available() && !message_received){
     c = Serial.read();
@@ -114,6 +133,16 @@ void serialEvent(){
       message_received = true;
     } else{
       receiving_message += c;
+    }
+  }
+
+  if(message_received){
+    message_received = false;
+    if(received_message.length()==0){
+      message_index = 0;
+      Serial.println("Set message index to 0");
+    } else{
+      parseMessage(received_message);
     }
   }
 }
