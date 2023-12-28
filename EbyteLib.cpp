@@ -98,7 +98,7 @@ void auxRisingISR(){
 void auxFallingISR(){
   DSerialln("Aux falling");
   auxLowFlag = true;
-  attachInterrupt(digitalPinToInterrupt(AUX), auxFallingISR, RISING);
+  attachInterrupt(digitalPinToInterrupt(AUX), auxRisingISR, RISING);
   switch(current_operation_mode){
     case NORMAL:
       if(writing_to_device){

@@ -1,15 +1,17 @@
 #include "EbyteLib.h"
 
-uint8_t chan = 23;
+uint8_t txChan = 23;
+uint8_t txAddh = 0xa1;
+uint8_t txAddl = 0x06;
+uint8_t rxChan = 10;
+uint8_t rxAddh = 0x8f;
+uint8_t rxAddl = 0xf7;
 
-const int N = 100;
-uint8_t buffer[N+1];
+void setup(){
+  Serial.begin(1200);
 
-void setup() {
-  // put your setup code here, to run once:
-  Serial.begin(57600);
-
-  Serial.println("Testing e32serial asynchronous transparent transmitter");
+  delay(1500);
+  Serial.println("Testing e32serial fixed transmitter");
 
   pinMode(LED_BUILTIN, OUTPUT);
   digitalWrite(LED_BUILTIN, LOW);
@@ -23,13 +25,13 @@ void setup() {
   Serial.println("Device initiated successfully");
 
   // setHEAD(DONT_SAVE_ON_POWER_DOWN);
-  setADDH(0xff);
-  setADDL(0xff);
-  setChannel(chan);
+  setADDH(rxAddh);
+  setADDL(rxAddl);
+  setChannel(rxChan);
   setParity(UART_PARITY_BIT_8N1);
   setBaudRate(TTL_UART_baud_rate_9600);
   setAirDataRate(Air_Data_Rate_9600);
-  setTransmissionMode(TRANSPARENT_TRANSMISSION_MODE);
+  setTransmissionMode(FIXED_TRANSMISSION_MODE);
   setIODriveMode(IO_DRIVE_MODE_PUSH_PULL);
   setWirelessWakeUpTime(WIRELESS_WAKE_UP_TIME_250ms);
   setFECSwitch(FEC_SWITCH_ON);
@@ -38,15 +40,14 @@ void setup() {
   readConfiguration();
   setNormalMode();
 
+  Serial.println(sizeof(configuration));
+  Serial.println(configuration.parameters.SPED.byte, BIN);
+
   Serial.println("");
   Serial.println("");
   Serial.println("");
   Serial.println("");
   Serial.println("");
-  for(int i = 0; i < N; i++){
-    buffer[i] = 0xA1;
-  }
-  buffer[N] = (uint8_t)'\n';
 }
 
 String receiving_message = "";
@@ -65,38 +66,28 @@ struct Message{
   float value_4 = 0.4;
 } message;
 
-void loop() {
-  // put your main code here, to run repeatedly:
-  checkSerials();
+void loop(){
+    if(message_received){
+    message_received = false;
+    if(received_message.length()==0){
+      state_sending = !state_sending;
+      Serial.print("Toggled sending state to ");
+      Serial.println(state_sending);
+    } else{
+      parseMessage(received_message);
+    }
+  }
+
+  delay(200);
 
   if(state_sending){
-    // asyncronousWrite(0xA1);
-    asyncronousWrite(buffer, N+1);
-
     // write(0xA1);
-    // write(message, 4);
-
-    // asyncronousWrite((uint8_t*)&message, sizeof(message));
-    printTransmissionResult(2000);
-  }
-
-  delay(500);
-}
-
-void checkSerials(){
-  checkSerial();
-  checkE32Serial();
-}
-
-void checkE32Serial(){
-  char c;
-  if(e32serial.available()){
-    c = e32serial.read();
-    Serial.println((uint8_t)c, HEX);
+    writeFixedTransmission(txAddh, txAddl, txChan, (uint8_t*)&message, sizeof(message));
+    Serial.println(getTransmissionResult());
   }
 }
 
-void checkSerial(){
+void serialEvent(){
   char c;
   while(Serial.available() && !message_received){
     c = Serial.read();
@@ -106,17 +97,6 @@ void checkSerial(){
       message_received = true;
     } else{
       receiving_message += c;
-    }
-  }
-
-  if(message_received){
-    message_received = false;
-    if(received_message.length()==0){
-      state_sending = !state_sending;
-      Serial.print("Toggled sending state to ");
-      Serial.println(state_sending);
-    } else{
-      parseMessage(received_message);
     }
   }
 }

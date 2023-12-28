@@ -10,7 +10,7 @@ unsigned int write_fifo_buffer_pointer = 0;
 const unsigned int fifo_buffer_max_length = FIFO_BUFFER_MAX_LENGTH;
 uint8_t fifo_helper_buffer[58];
 
-#define DBG
+// #define DBG
 #ifdef DBG
 #define DSerial(...) GET_MACRO(__VA_ARGS__, DSerial2, DSerial1)(__VA_ARGS__)
 #define DSerialln(...) GET_MACRO(__VA_ARGS__, DSerialln2, DSerialln1)(__VA_ARGS__)
@@ -154,7 +154,7 @@ void printFixedTransmission(uint8_t ADDH, uint8_t ADDL, uint8_t CHAN, const char
   waitForAuxReady();
 }
 
-#define DBG
+// #define DBG
 #ifdef DBG
 #define DSerial(...) GET_MACRO(__VA_ARGS__, DSerial2, DSerial1)(__VA_ARGS__)
 #define DSerialln(...) GET_MACRO(__VA_ARGS__, DSerialln2, DSerialln1)(__VA_ARGS__)
