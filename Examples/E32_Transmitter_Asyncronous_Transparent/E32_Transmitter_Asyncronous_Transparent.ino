@@ -2,36 +2,12 @@
 
 uint8_t chan = 23;
 
-struct Message{
-  char type[10];
-  char message_1[13];
-  char message_2[16];
-  float value_1;
-  float value_2;
-  float value_3;
-  float value_4;
-};
-
-Message message;
-unsigned int message_index = 0;
-
-/* 
-  Found this elegant code here: https://forum.arduino.cc/t/quickly-reversing-a-byte/115529/3
-  Ended up not using it though
-*/
-uint8_t inverse_byte(uint8_t b){
-  b = ((b>>1) & 0x55) | ((b<<1) & 0xAA);
-  b = ((b>>2) & 0x33) | ((b<<2) & 0xCC);
-  b = (b>>4) | (b<<4);
-  return b;
-}
-
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(57600);
 
   delay(1500);
-  Serial.println("Testing e32serial transparent receiver");
+  Serial.println("Testing e32serial asynchronous transparent transmitter");
 
   pinMode(LED_BUILTIN, OUTPUT);
   digitalWrite(LED_BUILTIN, LOW);
@@ -60,9 +36,6 @@ void setup() {
   readConfiguration();
   setNormalMode();
 
-  // Serial.println(sizeof(configuration));
-  // Serial.println(configuration.parameters.SPED.byte, BIN);
-
   Serial.println("");
   Serial.println("");
   Serial.println("");
@@ -74,33 +47,47 @@ String receiving_message = "";
 String received_message = "";
 bool message_received = false;
 
+bool state_sending = false;
+
+struct Message{
+  const char type[10] = "Telemetry";
+  const char message_1[13] = "Hello There!";
+  const char message_2[16] = "General Kenobi!";
+  float value_1 = 0.1;
+  float value_2 = 0.2;
+  float value_3 = 0.3;
+  float value_4 = 0.4;
+} message;
+
 void loop() {
   // put your main code here, to run repeatedly:
 
   if(message_received){
     message_received = false;
     if(received_message.length()==0){
-      message_index = 0;
-      Serial.println("Set message index to 0");
+      state_sending = !state_sending;
+      Serial.print("Toggled sending state to ");
+      Serial.println(state_sending);
     } else{
       parseMessage(received_message);
     }
   }
 
-  if(e32serial.available()){
-    Serial.println((uint8_t)e32serial.read(), HEX);
-    // ((uint8_t*)&message)[message_index++] = (uint8_t)e32serial.read();
-    // if(message_index==sizeof(message)){
-    //   message_index = 0;
-    //   Serial.print("\n\nMessage received!\n\n");
-    //   Serial.print("Message type: ");Serial.println(message.type);
-    //   Serial.print("Message 1: ");Serial.println(message.message_1);
-    //   Serial.print("Message 2: ");Serial.println(message.message_2);
-    //   Serial.print("Value 1: ");Serial.println(message.value_1);
-    //   Serial.print("Value 2: ");Serial.println(message.value_2);
-    //   Serial.print("Value 3: ");Serial.println(message.value_3);
-    //   Serial.print("Value 4: ");Serial.println(message.value_4);
-    // }
+  delay(200);
+
+  uint8_t buffer[64];
+  for(int i = 0; i < 64; i++){
+    buffer[i] = 0xA1;
+  }
+  if(state_sending){
+    // asyncronousWrite(0xA1);
+    asyncronousWrite(buffer, 64);
+
+    // write(0xA1);
+    // write(message, 4);
+
+    // write((uint8_t*)&message, sizeof(message));
+    Serial.println(getTransmissionResult());
   }
 }
 

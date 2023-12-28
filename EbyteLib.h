@@ -8,6 +8,8 @@
 #include "debugging.h"
 #include "Utils.h"
 
+extern bool receivingFlag;
+
 class EByte32LoRa{
     public:
 

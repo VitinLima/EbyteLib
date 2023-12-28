@@ -12,8 +12,6 @@ extern uint8_t ver[];
 
 void flush_e32serial(String msg);
 
-void getVersionInformation();
-
 void printHEAD();
 void printADDH();
 void printADDL();
@@ -26,6 +24,9 @@ void printIODriveMode();
 void printWirelessWakeUpTime();
 void printFECSwitch();
 void printTransmissionPower();
+void printConfiguration();
+void getVersionInformation();
+void printVersionInformation();
 
 void parseMessage(String received_message);
 

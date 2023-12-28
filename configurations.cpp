@@ -229,22 +229,22 @@ void setAirDataRate(AIR_DATA_RATE airDataRate){
 void setAirDataRate(unsigned long airDataRate){
   switch(airDataRate){
     case 300:
-      configuration.parameters.SPED.bits.TTL_UART_baud_rate = Air_Data_Rate_300;
+      configuration.parameters.SPED.bits.Air_data_rate = Air_Data_Rate_300;
       break;
     case 1200:
-      configuration.parameters.SPED.bits.TTL_UART_baud_rate = Air_Data_Rate_1200;
+      configuration.parameters.SPED.bits.Air_data_rate = Air_Data_Rate_1200;
       break;
     case 2400:
-      configuration.parameters.SPED.bits.TTL_UART_baud_rate = Air_Data_Rate_2400;
+      configuration.parameters.SPED.bits.Air_data_rate = Air_Data_Rate_2400;
       break;
     case 4800:
-      configuration.parameters.SPED.bits.TTL_UART_baud_rate = Air_Data_Rate_4800;
+      configuration.parameters.SPED.bits.Air_data_rate = Air_Data_Rate_4800;
       break;
     case 9600:
-      configuration.parameters.SPED.bits.TTL_UART_baud_rate = Air_Data_Rate_9600;
+      configuration.parameters.SPED.bits.Air_data_rate = Air_Data_Rate_9600;
       break;
     case 19200:
-      configuration.parameters.SPED.bits.TTL_UART_baud_rate = Air_Data_Rate_19200;
+      configuration.parameters.SPED.bits.Air_data_rate = Air_Data_Rate_19200;
       break;
   }
 }
@@ -298,9 +298,6 @@ void readConfiguration(){
 
   waitForAuxReady();
 
-  // e32serial.write(0xC1);
-  // e32serial.write(0xC1);
-  // e32serial.write(0xC1);
   uint8_t buffer[] = {0xC1, 0xC1, 0xC1};
   write(buffer, 3);
 
@@ -315,30 +312,48 @@ void readConfiguration(){
   }
 
   waitForAuxReady();
-  DSerial("\t");printHEAD();
-  DSerial("\t");printADDH();
-  DSerial("\t");printADDL();
-  DSerial("\t");printParity();
-  DSerial("\t");printBaudRate();
-  DSerial("\t");printAirDataRate();
-  DSerial("\t");printChannel();
-  DSerial("\t");printTransmissionMode();
-  DSerial("\t");printTransmissionPower();
+  DSerial("\t");ON_DEBUG(printHEAD();)
+  DSerial("\t");ON_DEBUG(printADDH();)
+  DSerial("\t");ON_DEBUG(printADDL();)
+  DSerial("\t");ON_DEBUG(printParity();)
+  DSerial("\t");ON_DEBUG(printBaudRate();)
+  DSerial("\t");ON_DEBUG(printAirDataRate();)
+  DSerial("\t");ON_DEBUG(printChannel();)
+  DSerial("\t");ON_DEBUG(printTransmissionMode();)
+  DSerial("\t");ON_DEBUG(printTransmissionPower();)
 }
 
+// #define DBG
+#ifdef DBG
+#define DSerial(...) GET_MACRO(__VA_ARGS__, DSerial2, DSerial1)(__VA_ARGS__)
+#define DSerialln(...) GET_MACRO(__VA_ARGS__, DSerialln2, DSerialln1)(__VA_ARGS__)
+#define ON_DEBUG(x) {x};
+#define Dinput(x) {input(x);}
+#else
+#define DSerial(...)
+#define DSerialln(...)
+#define ON_DEBUG(x)
+#define Dinput(x)
+#endif
+
 void setConfiguration(){
-  setSleepMode();
 
   DSerialln("Setting configuration to module");
+  setSleepMode();
 
-  DSerial("\t");
+  // Dinput("Enter to send configuration bytes");
   write(configuration.bytes, 6);
+  DSerial("\t");
+  ON_DEBUG(for(int i = 0; i < 6; i++){Serial.print(configuration.bytes[i], HEX);Serial.print(" ");})
+  DSerialln("");
 
   DSerialln("Waiting for response");
   uint8_t params[6];
 
-  DSerial("\t");
   read(params, 6);
+  DSerial("\t");
+  ON_DEBUG(for(int i = 0; i < 6; i++){Serial.print(params[i], HEX);Serial.print(" ");})
+  DSerialln("");
 
   uint8_t b;
   for(uint8_t i = 0; i < 6; i++){
@@ -354,3 +369,11 @@ void setConfiguration(){
     }
   }
 }
+
+#ifdef DBG
+#undef DBG
+#define DSerial(...)
+#define DSerialln(...)
+#define ON_DEBUG(x)
+#define Dinput(x)
+#endif

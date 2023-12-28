@@ -1,10 +1,14 @@
 #include "Arduino.h"
 #include "EbyteLib.h"
 
+bool receivingFlag = false;
+
 void waitForAuxReady(){
-  delay(50);
+  DSerial("Waiting for aux ready");
+  // delay(50);
   while(!digitalRead(AUX));
   delay(5);
+  DSerial("Done");
 }
 
 void initE32(){
@@ -54,25 +58,59 @@ void resetModule(){
   DSerial("Module has been reset successfully");
 }
 
-void auxChangeISR(){
-  // DSerial("Aux change");
-}
+// void auxChangeISR(){
+//   // DSerial("Aux change");
+// }
+
+#define DBG
+#ifdef DBG
+#define DSerial(...) GET_MACRO(__VA_ARGS__, DSerial2, DSerial1)(__VA_ARGS__)
+#define DSerialln(...) GET_MACRO(__VA_ARGS__, DSerialln2, DSerialln1)(__VA_ARGS__)
+#define ON_DEBUG(x) {x};
+#define Dinput(x) {input(x);}
+#else
+#define DSerial(...)
+#define DSerialln(...)
+#define ON_DEBUG(x)
+#define Dinput(x)
+#endif
 
 void auxRisingISR(){
-  // DSerial("Aux rising");
+  DSerialln("Aux rising");
   auxHighFlag = true;
-  attachInterrupt(digitalPinToInterrupt(AUX), auxFallingISR, FALLING);
-  // if(asyncronousTransmissionFlag){
-  //   asyncronousTransmissionCallback();
-  // }
+  switch(current_operation_mode){
+    case NORMAL:
+      if(asyncronousTransmissionFlag){
+        asyncronousTransmissionCallback();
+      } else{
+        attachInterrupt(digitalPinToInterrupt(AUX), auxFallingISR, FALLING);
+      }
+      break;
+    case SLEEP:
+      attachInterrupt(digitalPinToInterrupt(AUX), auxFallingISR, FALLING);
+      break;
+  }
 }
 void auxFallingISR(){
-  // DSerial("Aux falling");
+  DSerialln("Aux falling");
   auxLowFlag = true;
-  attachInterrupt(digitalPinToInterrupt(AUX), auxRisingISR, RISING);
-  // while(!digitalRead(AUX));
-  // DSerial("Aux rising");
+  switch(current_operation_mode){
+    case NORMAL:
+      attachInterrupt(digitalPinToInterrupt(AUX), auxRisingISR, RISING);
+      break;
+    case SLEEP:
+      attachInterrupt(digitalPinToInterrupt(AUX), auxFallingISR, FALLING);
+      break;
+  }
 }
+
+#ifdef DBG
+#undef DBG
+#define DSerial(...)
+#define DSerialln(...)
+#define ON_DEBUG(x)
+#define Dinput(x)
+#endif
 
 // void onAuxHigh(){
 //   DSerial("Aux High");

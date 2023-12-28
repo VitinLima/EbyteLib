@@ -1,3 +1,4 @@
 {
-    "arduino.analyzeOnSettingChange": true
+    "arduino.analyzeOnSettingChange": true,
+    "vscode-serial-monitor.lineEnding": "\n"
 }

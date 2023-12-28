@@ -13,33 +13,6 @@ void flush_e32serial(String msg){
   Serial.println("");
 }
 
-void getVersionInformation(){
-  setSleepMode();
-
-  Serial.print("Module version information: ");
-
-  e32serial.write(0xC3);
-  e32serial.write(0xC3);
-  e32serial.write(0xC3);
-
-  int counter = 0;
-  while(counter<4){
-    if(e32serial.available()){
-      // Serial.println(e32serial.peek(), HEX);
-      ver[counter++] = e32serial.read();
-    }
-  }
-
-  waitForAuxReady();
-  Serial.print(ver[0], HEX);
-  Serial.print(" ");
-  Serial.print(ver[1], HEX);
-  Serial.print(" ");
-  Serial.print(ver[2], HEX);
-  Serial.print(" ");
-  Serial.println(ver[3], HEX);
-}
-
 void printHEAD(){
   Serial.print("Head: ");Serial.println(configuration.parameters.HEAD, HEX);
 }
@@ -135,17 +108,17 @@ void parseMessage(String received_message){
       break;
     case 'B':
       s = received_message.substring(1);
-      Serial.print("UART baud rate changed to "); Serial.println(s);
+      Serial.print("UART baud rate changed to "); Serial.println(s.toInt());
       setBaudRate(s.toInt());
       break;
     case 'A':
       s = received_message.substring(1);
-      Serial.print("Air data rate changed to "); Serial.println(s);
+      Serial.print("Air data rate changed to "); Serial.println(s.toInt());
       setAirDataRate(s.toInt());
       break;
     case 'T':
       s = received_message.substring(1);
-      Serial.print("Transmission power changed to "); Serial.println(s);
+      Serial.print("Transmission power changed to "); Serial.println(s.toInt());
       setTransmissionPower(s.toInt());
       break;
     case 'H':
@@ -167,4 +140,47 @@ void parseMessage(String received_message){
   }
   setConfiguration();
   setNormalMode();
+}
+
+void printConfiguration(){
+  Serial.print("\t");printHEAD();
+  Serial.print("\t");printADDH();
+  Serial.print("\t");printADDL();
+  Serial.print("\t");printParity();
+  Serial.print("\t");printBaudRate();
+  Serial.print("\t");printAirDataRate();
+  Serial.print("\t");printChannel();
+  Serial.print("\t");printTransmissionMode();
+  Serial.print("\t");printTransmissionPower();
+}
+
+void getVersionInformation(){
+  setSleepMode();
+
+  e32serial.write(0xC3);
+  e32serial.write(0xC3);
+  e32serial.write(0xC3);
+
+  int counter = 0;
+  while(counter<4){
+    if(e32serial.available()){
+      // Serial.println(e32serial.peek(), HEX);
+      ver[counter++] = e32serial.read();
+    }
+  }
+
+  waitForAuxReady();
+}
+
+void printVersionInformation(){
+  Serial.print("Module version information: ");
+
+  Serial.print("\t");
+  Serial.print(ver[0], HEX);
+  Serial.print(" ");
+  Serial.print(ver[1], HEX);
+  Serial.print(" ");
+  Serial.print(ver[2], HEX);
+  Serial.print(" ");
+  Serial.println(ver[3], HEX);
 }

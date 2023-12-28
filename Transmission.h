@@ -11,12 +11,13 @@
 #define FIFO_BUFFER_MAX_LENGTH 256
 
 extern bool asyncronousTransmissionFlag;
+extern bool transmission_finished;
 extern bool fifo_buffer_overflow;
 extern const uint8_t fifo_buffer[FIFO_BUFFER_MAX_LENGTH];
-extern uint8_t fifo_buffer_length;
-extern uint8_t fifo_buffer_pointer;
-extern uint8_t write_fifo_buffer_pointer;
-extern const uint8_t fifo_buffer_max_length;
+extern unsigned int fifo_buffer_length;
+extern unsigned int fifo_buffer_pointer;
+extern unsigned int write_fifo_buffer_pointer;
+extern const unsigned int fifo_buffer_max_length;
 extern const uint8_t fifo_helper_buffer[58];
 
 void asyncronousTransmissionCallback();
