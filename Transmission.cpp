@@ -197,10 +197,8 @@ void write(uint8_t byte){
   waitForAuxReady();
 }
 
-void asyncronousWrite(uint8_t* buffer, unsigned int size){
+void asynchronousWrite(uint8_t* buffer, unsigned int size){
   while(asyncronousTransmissionFlag);
-  auxHighFlag = false;
-  auxLowFlag = false;
   if(size <= 58){ // If message is too small, simply write it
     // if(asyncronousTransmissionFlag){
     //   write_to_fifo(buffer, size);
@@ -208,7 +206,6 @@ void asyncronousWrite(uint8_t* buffer, unsigned int size){
       write(buffer, size);
     // }
   } else{ // If message is long, more packets are required, turn on asynchronous transmission
-    // attachInterrupt(digitalPinToInterrupt(AUX), asyncronousTransmissionCallback, RISING);
     D3Serialln("writing to fifo");
     write_to_fifo(&buffer[58], size-58);
     D3Serialln("Setting async flag");
@@ -221,7 +218,7 @@ void asyncronousWrite(uint8_t* buffer, unsigned int size){
   }
 }
 
-// void asyncronousWrite(uint8_t byte){
+// void asynchronousWrite(uint8_t byte){
 //   while(asyncronousTransmissionFlag);
 //   auxHighFlag = false;
 //   auxLowFlag = false;
@@ -235,8 +232,6 @@ void asyncronousWrite(uint8_t* buffer, unsigned int size){
 
 void writeFixedTransmission(uint8_t ADDH, uint8_t ADDL, uint8_t CHAN, uint8_t* buffer, unsigned int size){
   while(asyncronousTransmissionFlag);
-  auxHighFlag = false;
-  auxLowFlag = false;
   uint8_t transmitting_buffer[3 + size];
   transmitting_buffer[0] = ADDH;
   transmitting_buffer[1] = ADDL;
@@ -249,8 +244,6 @@ void writeFixedTransmission(uint8_t ADDH, uint8_t ADDL, uint8_t CHAN, uint8_t* b
 
 void writeFixedTransmission(uint8_t ADDH, uint8_t ADDL, uint8_t CHAN, uint8_t byte){
   while(asyncronousTransmissionFlag);
-  auxHighFlag = false;
-  auxLowFlag = false;
   uint8_t transmitting_buffer[4];
   transmitting_buffer[0] = ADDH;
   transmitting_buffer[1] = ADDL;
@@ -259,11 +252,16 @@ void writeFixedTransmission(uint8_t ADDH, uint8_t ADDL, uint8_t CHAN, uint8_t by
   write(transmitting_buffer, 4);
 }
 
-void asyncronouswriteFixedTransmission(uint8_t ADDH, uint8_t ADDL, uint8_t CHAN, uint8_t* buffer, unsigned int size){
+void asynchronousWriteFixedTransmission(uint8_t ADDH, uint8_t ADDL, uint8_t CHAN, uint8_t* buffer, unsigned int size){
   while(asyncronousTransmissionFlag);
-  auxHighFlag = false;
-  auxLowFlag = false;
-
+  uint8_t transmitting_buffer[3 + size];
+  transmitting_buffer[0] = ADDH;
+  transmitting_buffer[1] = ADDL;
+  transmitting_buffer[2] = CHAN;
+  for(uint8_t i = 0; i < size; i++){
+    transmitting_buffer[i+3] = buffer[i];
+  }
+  asynchronousWrite(transmitting_buffer, size+3);
 }
 
 // void asyncronouswriteFixedTransmission(uint8_t ADDH, uint8_t ADDL, uint8_t CHAN, uint8_t byte){

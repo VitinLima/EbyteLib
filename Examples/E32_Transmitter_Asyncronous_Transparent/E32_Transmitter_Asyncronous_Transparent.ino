@@ -3,11 +3,11 @@
 uint8_t chan = 23;
 
 const int N = 100;
-uint8_t buffer[N+1];
+uint8_t buffer[N+1]; // sending a buffer byte by byte
 
 void setup() {
   // put your setup code here, to run once:
-  Serial.begin(57600);
+  Serial.begin(1200);
 
   Serial.println("Testing e32serial asynchronous transparent transmitter");
 
@@ -70,13 +70,7 @@ void loop() {
   checkSerials();
 
   if(state_sending){
-    // asyncronousWrite(0xA1);
-    asyncronousWrite(buffer, N+1);
-
-    // write(0xA1);
-    // write(message, 4);
-
-    // asyncronousWrite((uint8_t*)&message, sizeof(message));
+    asynchronousWrite(buffer, N+1);
     printTransmissionResult(2000);
   }
 

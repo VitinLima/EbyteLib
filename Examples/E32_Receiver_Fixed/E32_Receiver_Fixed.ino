@@ -62,9 +62,6 @@ void setup() {
   readConfiguration();
   setNormalMode();
 
-  Serial.println(sizeof(configuration));
-  Serial.println(configuration.parameters.SPED.byte, BIN);
-
   Serial.println("");
   Serial.println("");
   Serial.println("");

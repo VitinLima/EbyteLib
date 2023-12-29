@@ -57,32 +57,35 @@ struct Message{
   float value_2 = 0.2;
   float value_3 = 0.3;
   float value_4 = 0.4;
-} message;
+} message; // sending a struct with multiple fields
 
 void loop() {
   // put your main code here, to run repeatedly:
-
-  if(message_received){
-    message_received = false;
-    if(received_message.length()==0){
-      state_sending = !state_sending;
-      Serial.print("Toggled sending state to ");
-      Serial.println(state_sending);
-    } else{
-      parseMessage(received_message);
-    }
-  }
-
-  delay(200);
+  checkSerials();
 
   if(state_sending){
     // write(0xA1);
     write((uint8_t*)&message, sizeof(message));
-    Serial.println(getTransmissionResult());
+    printTransmissionResult(2000);
+  }
+
+  delay(200);
+}
+
+void checkSerials(){
+  checkSerial();
+  checkE32Serial();
+}
+
+void checkE32Serial(){
+  char c;
+  if(e32serial.available()){
+    c = e32serial.read();
+    Serial.println((uint8_t)c, HEX);
   }
 }
 
-void serialEvent(){
+void checkSerial(){
   char c;
   while(Serial.available() && !message_received){
     c = Serial.read();
@@ -94,27 +97,15 @@ void serialEvent(){
       receiving_message += c;
     }
   }
+
+  if(message_received){
+    message_received = false;
+    if(received_message.length()==0){
+      state_sending = !state_sending;
+      Serial.print("Toggled sending state to ");
+      Serial.println(state_sending);
+    } else{
+      parseMessage(received_message);
+    }
+  }
 }
-
-
-// void initE32(){
-//   e32serial.begin(9600);
-
-//   // attachInterrupt(digitalPinToInterrupt(AUX), auxChangeISR, CHANGE);
-//   // attachInterrupt(digitalPinToInterrupt(AUX), auxRisingISR, RISING);
-//   attachInterrupt(digitalPinToInterrupt(AUX), auxFallingISR, FALLING);
-
-//   pinMode(M0, OUTPUT);
-//   pinMode(M1, OUTPUT);
-//   pinMode(AUX, INPUT);
-
-//   digitalWrite(M0, HIGH);
-//   digitalWrite(M1, HIGH);
-//   current_operation_mode = SLEEP;
-
-//   waitForAuxReady();
-//   readConfiguration();
-//   waitForAuxReady();
-
-//   Serial.println("Module initiated and ready to accept instructions");
-// }

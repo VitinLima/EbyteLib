@@ -40,9 +40,6 @@ void setup(){
   readConfiguration();
   setNormalMode();
 
-  Serial.println(sizeof(configuration));
-  Serial.println(configuration.parameters.SPED.byte, BIN);
-
   Serial.println("");
   Serial.println("");
   Serial.println("");
@@ -64,30 +61,33 @@ struct Message{
   float value_2 = 0.2;
   float value_3 = 0.3;
   float value_4 = 0.4;
-} message;
+} message; // sending a struct with multiple fields
 
 void loop(){
-    if(message_received){
-    message_received = false;
-    if(received_message.length()==0){
-      state_sending = !state_sending;
-      Serial.print("Toggled sending state to ");
-      Serial.println(state_sending);
-    } else{
-      parseMessage(received_message);
-    }
+  checkSerials();
+
+  if(state_sending){
+    writeFixedTransmission(txAddh, txAddl, txChan, (uint8_t*)&message, sizeof(message));
+    printTransmissionResult(5000);
   }
 
   delay(200);
+}
 
-  if(state_sending){
-    // write(0xA1);
-    writeFixedTransmission(txAddh, txAddl, txChan, (uint8_t*)&message, sizeof(message));
-    Serial.println(getTransmissionResult());
+void checkSerials(){
+  checkSerial();
+  checkE32Serial();
+}
+
+void checkE32Serial(){
+  char c;
+  if(e32serial.available()){
+    c = e32serial.read();
+    Serial.println((uint8_t)c, HEX);
   }
 }
 
-void serialEvent(){
+void checkSerial(){
   char c;
   while(Serial.available() && !message_received){
     c = Serial.read();
@@ -97,6 +97,17 @@ void serialEvent(){
       message_received = true;
     } else{
       receiving_message += c;
+    }
+  }
+
+  if(message_received){
+    message_received = false;
+    if(received_message.length()==0){
+      state_sending = !state_sending;
+      Serial.print("Toggled sending state to ");
+      Serial.println(state_sending);
+    } else{
+      parseMessage(received_message);
     }
   }
 }

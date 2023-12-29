@@ -30,12 +30,13 @@ void write(uint8_t byte);
 void writeFixedTransmission(uint8_t ADDH, uint8_t ADDL, uint8_t CHAN, uint8_t* buffer, unsigned int size);
 void writeFixedTransmission(uint8_t ADDH, uint8_t ADDL, uint8_t CHAN, uint8_t byte);
 
-void asyncronousWrite(uint8_t* buffer, unsigned int size);
-void asyncronousWrite(uint8_t byte);
-void asyncronouswriteFixedTransmission(uint8_t ADDH, uint8_t ADDL, uint8_t CHAN, uint8_t* buffer, unsigned int size);
-void asyncronouswriteFixedTransmission(uint8_t ADDH, uint8_t ADDL, uint8_t CHAN, uint8_t byte);
+void asynchronousWrite(uint8_t* buffer, unsigned int size);
+// void asynchronousWrite(uint8_t byte);
+void asynchronousWriteFixedTransmission(uint8_t ADDH, uint8_t ADDL, uint8_t CHAN, uint8_t* buffer, unsigned int size);
+// void asynchronousWriteFixedTransmission(uint8_t ADDH, uint8_t ADDL, uint8_t CHAN, uint8_t byte);
 
 void read(uint8_t* buffer, unsigned int size);
+void read(uint8_t* buffer, unsigned int size, unsigned long int timeout);
 bool getTransmissionResult(unsigned long int timeout);
 
 #endif
