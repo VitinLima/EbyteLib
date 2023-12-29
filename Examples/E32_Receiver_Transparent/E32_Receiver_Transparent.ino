@@ -5,7 +5,10 @@
 
 #include "EbyteLib.h"
 
-uint8_t chan = 23;
+uint8_t txChan = 10;
+uint8_t txAddh = 0xa1;
+uint8_t txAddl = 0x06;
+uint8_t rxChan = 23;
 
 struct Message{
   char type[10];
@@ -51,7 +54,7 @@ void setup() {
   // setHEAD(DONT_SAVE_ON_POWER_DOWN);
   setADDH(0xff);
   setADDL(0xff);
-  setChannel(chan);
+  setChannel(rxChan);
   setParity(UART_PARITY_BIT_8N1);
   setBaudRate(TTL_UART_baud_rate_9600);
   setAirDataRate(Air_Data_Rate_9600);
@@ -63,9 +66,6 @@ void setup() {
   setConfiguration();
   readConfiguration();
   setNormalMode();
-
-  // Serial.println(sizeof(configuration));
-  // Serial.println(configuration.parameters.SPED.byte, BIN);
 
   Serial.println("");
   Serial.println("");
@@ -80,10 +80,6 @@ bool message_received = false;
 
 unsigned int e32Counter = 0;
 
-// String e32_receiving_message = "";
-// String e32_received_message = "";
-// bool e32_message_received = false;
-
 void loop() {
   // put your main code here, to run repeatedly:
   checkSerials();
@@ -97,27 +93,18 @@ void checkSerials(){
 void checkE32Serial(){
   char c;
   while(e32serial.available()){
-    c = e32serial.read();
-    if(c=='\n'){
-      Serial.print("Message length: ");
-      Serial.println(e32Counter);
-      e32Counter = 0;
-    }else{
-      e32Counter++;
-      Serial.println((uint8_t)c, HEX);
+    ((uint8_t*)&message)[message_index++] = (uint8_t)e32serial.read();
+    if(message_index==sizeof(message)){
+      message_index = 0;
+      Serial.print("\n\nMessage received!\n\n");
+      Serial.print("Message type: ");Serial.println(message.type);
+      Serial.print("Message 1: ");Serial.println(message.message_1);
+      Serial.print("Message 2: ");Serial.println(message.message_2);
+      Serial.print("Value 1: ");Serial.println(message.value_1);
+      Serial.print("Value 2: ");Serial.println(message.value_2);
+      Serial.print("Value 3: ");Serial.println(message.value_3);
+      Serial.print("Value 4: ");Serial.println(message.value_4);
     }
-    // ((uint8_t*)&message)[message_index++] = (uint8_t)e32serial.read();
-    // if(message_index==sizeof(message)){
-    //   message_index = 0;
-    //   Serial.print("\n\nMessage received!\n\n");
-    //   Serial.print("Message type: ");Serial.println(message.type);
-    //   Serial.print("Message 1: ");Serial.println(message.message_1);
-    //   Serial.print("Message 2: ");Serial.println(message.message_2);
-    //   Serial.print("Value 1: ");Serial.println(message.value_1);
-    //   Serial.print("Value 2: ");Serial.println(message.value_2);
-    //   Serial.print("Value 3: ");Serial.println(message.value_3);
-    //   Serial.print("Value 4: ");Serial.println(message.value_4);
-    // }
   }
 }
 
@@ -139,8 +126,22 @@ void checkSerial(){
     if(received_message.length()==0){
       message_index = 0;
       Serial.println("Set message index to 0");
-    } else{
-      parseMessage(received_message);
+    } else if(received_message[0] == 'T'){
+      if(received_message.startsWith("Tset tx chan ")){
+        txChan = received_message.substring(13).toInt();
+        Serial.print("Set tx channel to ");
+        Serial.println(txChan);
+      } else if(received_message.startsWith("Tset tx addh ")){
+        txAddh = received_message.substring(13).toInt();
+        Serial.print("Set tx addh to ");
+        Serial.println(txAddh);
+      } else if(received_message.startsWith("Tset tx addl ")){
+        txAddl = received_message.substring(13).toInt();
+        Serial.print("Set tx addl to ");
+        Serial.println(txAddl);
+      }
+    } else if(received_message[0] == 'C'){
+      parseMessage(received_message.substring(1));
     }
   }
 }

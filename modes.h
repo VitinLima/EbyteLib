@@ -10,4 +10,7 @@ extern void setNormalMode();
 extern void setWakeUpMode();
 extern void setPowerSavingMode();
 
+OperationMode getOperationMode();
+void setOperationMode(OperationMode op);
+
 #endif

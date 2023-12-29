@@ -11,6 +11,7 @@
 extern uint8_t ver[];
 
 void flush_e32serial(String msg);
+void flush();
 
 void printHEAD();
 void printADDH();

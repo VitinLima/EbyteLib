@@ -5,14 +5,13 @@
 
 #include "EbyteLib.h"
 
-uint8_t chan = 23;
-
-const int N = 100;
-uint8_t buffer[N+1]; // sending a buffer byte by byte
+uint8_t txChan = 23;
+uint8_t txAddh = 0xa1;
+uint8_t txAddl = 0x06;
 
 void setup() {
   // put your setup code here, to run once:
-  Serial.begin(1200);
+  Serial.begin(57600);
 
   Serial.println("Testing e32serial asynchronous transparent transmitter");
 
@@ -30,7 +29,7 @@ void setup() {
   // setHEAD(DONT_SAVE_ON_POWER_DOWN);
   setADDH(0xff);
   setADDL(0xff);
-  setChannel(chan);
+  setChannel(rxChan);
   setParity(UART_PARITY_BIT_8N1);
   setBaudRate(TTL_UART_baud_rate_9600);
   setAirDataRate(Air_Data_Rate_9600);
@@ -48,10 +47,6 @@ void setup() {
   Serial.println("");
   Serial.println("");
   Serial.println("");
-  for(int i = 0; i < N; i++){
-    buffer[i] = 0xA1;
-  }
-  buffer[N] = (uint8_t)'\n';
 }
 
 String receiving_message = "";
@@ -68,15 +63,16 @@ struct Message{
   float value_2 = 0.2;
   float value_3 = 0.3;
   float value_4 = 0.4;
-} message;
+} message; // sending a struct with multiple fields
 
 void loop() {
   // put your main code here, to run repeatedly:
   checkSerials();
 
   if(state_sending){
-    asynchronousWrite(buffer, N+1);
-    printTransmissionResult(2000);
+    // asynchronousWrite(buffer, N+1);
+    asynchronousWrite((uint8_t*)&message, sizeof(message));
+    printTransmissionResult(5000);
   }
 
   delay(2000);
@@ -114,8 +110,22 @@ void checkSerial(){
       state_sending = !state_sending;
       Serial.print("Toggled sending state to ");
       Serial.println(state_sending);
-    } else{
-      parseMessage(received_message);
+    } else if(received_message[0] == 'T'){
+      if(received_message.startsWith("Tset tx chan ")){
+        txChan = received_message.substring(13).toInt();
+        Serial.print("Set tx channel to ");
+        Serial.println(txChan);
+      } else if(received_message.startsWith("Tset tx addh ")){
+        txAddh = received_message.substring(13).toInt();
+        Serial.print("Set tx addh to ");
+        Serial.println(txAddh);
+      } else if(received_message.startsWith("Tset tx addl ")){
+        txAddl = received_message.substring(13).toInt();
+        Serial.print("Set tx addl to ");
+        Serial.println(txAddl);
+      }
+    } else if(received_message[0] == 'C'){
+      parseMessage(received_message.substring(1));
     }
   }
 }

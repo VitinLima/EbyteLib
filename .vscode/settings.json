@@ -6,5 +6,9 @@
             "*.ino"
         ]
     },
-    "arduino.analyzeOnOpen": false
+    "arduino.analyzeOnOpen": false,
+    "files.associations": {
+        "*.tcc": "cpp",
+        "ostream": "cpp"
+    }
 }

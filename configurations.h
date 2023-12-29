@@ -43,7 +43,7 @@ void setTransmissionPower(TRANSMISSION_POWER power);
 void setTransmissionPower(uint8_t power); // Remove later
 
 void readConfiguration();
-void setConfiguration();
+bool setConfiguration();
 // void setConfiguration(HEAD head, uint8_t CHAN);
 
 #endif

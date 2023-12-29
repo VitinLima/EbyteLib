@@ -13,7 +13,7 @@ uint8_t rxAddh = 0x8f;
 uint8_t rxAddl = 0xf7;
 
 void setup(){
-  Serial.begin(1200);
+  Serial.begin(57600);
 
   delay(1500);
   Serial.println("Testing e32serial fixed transmitter");
@@ -76,7 +76,7 @@ void loop(){
     printTransmissionResult(5000);
   }
 
-  delay(2000);
+  delay(500);
 }
 
 void checkSerials(){
@@ -111,8 +111,22 @@ void checkSerial(){
       state_sending = !state_sending;
       Serial.print("Toggled sending state to ");
       Serial.println(state_sending);
-    } else{
-      parseMessage(received_message);
+    } else if(received_message[0] == 'T'){
+      if(received_message.startsWith("Tset tx chan ")){
+        txChan = received_message.substring(13).toInt();
+        Serial.print("Set tx channel to ");
+        Serial.println(txChan);
+      } else if(received_message.startsWith("Tset tx addh ")){
+        txAddh = received_message.substring(13).toInt();
+        Serial.print("Set tx addh to ");
+        Serial.println(txAddh);
+      } else if(received_message.startsWith("Tset tx addl ")){
+        txAddl = received_message.substring(13).toInt();
+        Serial.print("Set tx addl to ");
+        Serial.println(txAddl);
+      }
+    } else if(received_message[0] == 'C'){
+      parseMessage(received_message.substring(1));
     }
   }
 }

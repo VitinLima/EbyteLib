@@ -171,11 +171,59 @@ void write(uint8_t* buffer, unsigned int size){
   auxHighFlag = false;
   auxLowFlag = false;
   writing_to_device = true;
-  DSerial("Writing: ");
-  ON_DEBUG(printHEX(buffer, size);)
-  waitForAuxReady();
-  e32serial.write(buffer, size);
-  waitForAuxReady();
+  if(size <= 58){
+    DSerial("Writing: ");
+    ON_DEBUG(printHEX(buffer, size);)
+    waitForAuxReady();
+    e32serial.write(buffer, size);
+    waitForAuxReady();
+  } else{
+    transmission_started = false;
+    transmission_finished = false;
+    unsigned long int t = millis();
+    waitForAuxReady();
+    // detachInterrupt(digitalPinToInterrupt(AUX));
+    DSerialln(digitalRead(AUX));
+    // noInterrupts();
+    e32serial.write(buffer, 50);
+    // interrupts();
+
+    // while(millis() < t + 500){
+    //   DSerialln(digitalRead(AUX));
+    //   delayMicroseconds(200);
+    // }
+    // attachInterrupt(digitalPinToInterrupt(AUX), auxFallingISR, FALLING);
+    while(digitalRead(AUX));
+    while(!digitalRead(AUX));
+    // delay(50);
+    // noInterrupts();
+    e32serial.write(buffer + 50, 51);
+    // interrupts();
+    waitForAuxReady();
+    // unsigned int r;
+    // for(int i = 0; i < size; i+=58){
+    //   r = size - i;
+    //   if(r > 58){
+    //     r = 58;
+    //   }
+    //   DSerial("Writing: ");
+    //   ON_DEBUG(printHEX(&(buffer[i]), r);)
+    //   waitForAuxReady();
+    //   transmission_started = false;
+    //   transmission_finished = false;
+    //   noInterrupts();
+    //   e32serial.write(&(buffer[i]), r);
+    //   interrupts();
+    //   waitForAuxReady();
+    //   while(!transmission_started);
+    //   DSerialln("Writing transmission has started");
+    //   while(!transmission_finished);
+    //   // delay(500);
+    //   waitForAuxReady();
+    //   DSerial(r);
+    //   DSerialln(" bytes transmitted");
+    // }
+  }
 }
 
 #ifdef DBG
@@ -278,17 +326,26 @@ void asynchronousWriteFixedTransmission(uint8_t ADDH, uint8_t ADDL, uint8_t CHAN
 //   write_to_fifo(transmitting_buffer, 4);
 // }
 
-void read(uint8_t* buffer, unsigned int size){
+bool read(uint8_t* buffer, unsigned int size){
+  return read(buffer, size, 50);
+}
+
+bool read(uint8_t* buffer, unsigned int size, unsigned long int timeout){
+  long unsigned int timeout_limit = millis() + timeout;
   unsigned int counter = 0;
   D2Serial("Reading: ");
-  while(counter<size){
+  while(millis() < timeout_limit){
     if(e32serial.available()){
       buffer[counter++] = (uint8_t)e32serial.read();
       DSerial(buffer[counter-1], HEX);
       DSerial(" ");
     }
+    if(counter==size){
+      return true;
+    }
   }
   D2Serialln("");
+  return false;
 }
 
 bool getTransmissionResult(unsigned long int timeout){

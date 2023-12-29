@@ -5,6 +5,9 @@
 
 #include "EbyteLib.h"
 
+uint8_t txChan = 10;
+uint8_t txAddh = 0x8f;
+uint8_t txAddl = 0xf7;
 uint8_t rxChan = 23;
 uint8_t rxAddh = 0xa1;
 uint8_t rxAddl = 0x06;
@@ -35,7 +38,7 @@ uint8_t inverse_byte(uint8_t b){
 
 void setup() {
   // put your setup code here, to run once:
-  Serial.begin(1200);
+  Serial.begin(57600);
 
   delay(1500);
   Serial.println("Testing e32serial fixed receiver");
@@ -80,18 +83,17 @@ bool message_received = false;
 
 void loop() {
   // put your main code here, to run repeatedly:
+  checkSerials();
+}
 
-  if(message_received){
-    message_received = false;
-    if(received_message.length()==0){
-      message_index = 0;
-      Serial.println("Set message index to 0");
-    } else{
-      parseMessage(received_message);
-    }
-  }
+void checkSerials(){
+  checkSerial();
+  checkE32Serial();
+}
 
-  if(e32serial.available()){
+void checkE32Serial(){
+  char c;
+  while(e32serial.available()){
     ((uint8_t*)&message)[message_index++] = (uint8_t)e32serial.read();
     if(message_index==sizeof(message)){
       message_index = 0;
@@ -107,7 +109,7 @@ void loop() {
   }
 }
 
-void serialEvent(){
+void checkSerial(){
   char c;
   while(Serial.available() && !message_received){
     c = Serial.read();
@@ -117,6 +119,30 @@ void serialEvent(){
       message_received = true;
     } else{
       receiving_message += c;
+    }
+  }
+
+  if(message_received){
+    message_received = false;
+    if(received_message.length()==0){
+      message_index = 0;
+      Serial.println("Set message index to 0");
+    } else if(received_message[0] == 'T'){
+      if(received_message.startsWith("Tset tx chan ")){
+        txChan = received_message.substring(13).toInt();
+        Serial.print("Set tx channel to ");
+        Serial.println(txChan);
+      } else if(received_message.startsWith("Tset tx addh ")){
+        txAddh = received_message.substring(13).toInt();
+        Serial.print("Set tx addh to ");
+        Serial.println(txAddh);
+      } else if(received_message.startsWith("Tset tx addl ")){
+        txAddl = received_message.substring(13).toInt();
+        Serial.print("Set tx addl to ");
+        Serial.println(txAddl);
+      }
+    } else if(received_message[0] == 'C'){
+      parseMessage(received_message.substring(1));
     }
   }
 }

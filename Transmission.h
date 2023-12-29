@@ -35,8 +35,8 @@ void asynchronousWrite(uint8_t* buffer, unsigned int size);
 void asynchronousWriteFixedTransmission(uint8_t ADDH, uint8_t ADDL, uint8_t CHAN, uint8_t* buffer, unsigned int size);
 // void asynchronousWriteFixedTransmission(uint8_t ADDH, uint8_t ADDL, uint8_t CHAN, uint8_t byte);
 
-void read(uint8_t* buffer, unsigned int size);
-void read(uint8_t* buffer, unsigned int size, unsigned long int timeout);
+bool read(uint8_t* buffer, unsigned int size);
+bool read(uint8_t* buffer, unsigned int size, unsigned long int timeout);
 bool getTransmissionResult(unsigned long int timeout);
 
 #endif

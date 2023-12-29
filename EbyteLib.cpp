@@ -18,11 +18,10 @@ void initE32(){
 
   // attachInterrupt(digitalPinToInterrupt(AUX), auxChangeISR, CHANGE);
   // attachInterrupt(digitalPinToInterrupt(AUX), auxRisingISR, RISING);
-  attachInterrupt(digitalPinToInterrupt(AUX), auxFallingISR, FALLING);
 
   pinMode(M0, OUTPUT);
   pinMode(M1, OUTPUT);
-  pinMode(AUX, INPUT);
+  pinMode(AUX, INPUT_PULLUP);
 
   digitalWrite(M0, HIGH);
   digitalWrite(M1, HIGH);
@@ -34,6 +33,8 @@ void initE32(){
   DSerial("done");
   waitForAuxReady();
 
+  attachInterrupt(digitalPinToInterrupt(AUX), auxFallingISR, FALLING);
+  
   DSerial("Module initiated and ready to accept instructions");
 }
 
@@ -85,9 +86,10 @@ void auxRisingISR(){
       if(asyncronousTransmissionFlag){
         asyncronousTransmissionCallback();
       } else if(transmission_started){
+        DSerialln("Transmission finished");
         transmission_finished = true;
-        transmission_started = false;
-      }else{
+        attachInterrupt(digitalPinToInterrupt(AUX), auxFallingISR, FALLING);
+      } else{
         attachInterrupt(digitalPinToInterrupt(AUX), auxFallingISR, FALLING);
       }
       break;
@@ -103,6 +105,7 @@ void auxFallingISR(){
   switch(current_operation_mode){
     case NORMAL:
       if(writing_to_device){
+        DSerialln("Transmission started");
         transmission_started = true;
         transmission_finished = false;
       }

@@ -1,6 +1,6 @@
 /*
-    Transparent Transmitter => Asynchronous Transparent Receiver (TODO)
-    Transparent Transmitter => Transparent Receiver
+    Asynchronous Transparent Transmitter => Asynchronous Transparent Receiver (TODO)
+    Asynchronous Transparent Transmitter => Transparent Receiver
 */
 
 #include "EbyteLib.h"
@@ -9,15 +9,14 @@ uint8_t txChan = 23;
 uint8_t txAddh = 0xa1;
 uint8_t txAddl = 0x06;
 
+const int N = 100;
+uint8_t buffer[N+1]; // sending a buffer byte by byte
+
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(57600);
 
-  delay(1500);
-  Serial.println("Testing e32serial transparent transmitter");
-
-  pinMode(LED_BUILTIN, OUTPUT);
-  digitalWrite(LED_BUILTIN, LOW);
+  Serial.println("Testing e32serial asynchronous transparent transmitter");
 
   initE32();
 
@@ -28,12 +27,12 @@ void setup() {
   Serial.println("Device initiated successfully");
 
   // setHEAD(DONT_SAVE_ON_POWER_DOWN);
-  setADDH(0xff);
-  setADDL(0xff);
+  setADDH(txAddh);
+  setADDL(txAddl);
   setChannel(txChan);
   setParity(UART_PARITY_BIT_8N1);
-  setBaudRate(TTL_UART_baud_rate_9600);
-  setAirDataRate(Air_Data_Rate_9600);
+  setBaudRate(TTL_UART_baud_rate_19200);
+  setAirDataRate(Air_Data_Rate_2400);
   setTransmissionMode(TRANSPARENT_TRANSMISSION_MODE);
   setIODriveMode(IO_DRIVE_MODE_PUSH_PULL);
   setWirelessWakeUpTime(WIRELESS_WAKE_UP_TIME_250ms);
@@ -42,6 +41,11 @@ void setup() {
   setConfiguration();
   readConfiguration();
   setNormalMode();
+
+  for(int i = 0; i < N; i++){
+    buffer[i] = 0xA1;
+  }
+  buffer[N] = (uint8_t)'\n';
 
   Serial.println("");
   Serial.println("");
@@ -56,22 +60,12 @@ bool message_received = false;
 
 bool state_sending = false;
 
-struct Message{
-  const char type[10] = "Telemetry";
-  const char message_1[13] = "Hello There!";
-  const char message_2[16] = "General Kenobi!";
-  float value_1 = 0.1;
-  float value_2 = 0.2;
-  float value_3 = 0.3;
-  float value_4 = 0.4;
-} message; // sending a struct with multiple fields
-
 void loop() {
   // put your main code here, to run repeatedly:
   checkSerials();
 
   if(state_sending){
-    write((uint8_t*)&message, sizeof(message));
+    write(buffer, N+1);
     printTransmissionResult(2000);
   }
 
@@ -83,6 +77,9 @@ void checkSerials(){
   checkE32Serial();
 }
 
+/*
+  On receiving
+*/
 void checkE32Serial(){
   char c;
   if(e32serial.available()){
@@ -91,6 +88,9 @@ void checkE32Serial(){
   }
 }
 
+/*
+  Example utilities
+*/
 void checkSerial(){
   char c;
   while(Serial.available() && !message_received){
@@ -110,21 +110,23 @@ void checkSerial(){
       state_sending = !state_sending;
       Serial.print("Toggled sending state to ");
       Serial.println(state_sending);
-    } else if(received_message[0] == 'T'){
-      if(received_message.startsWith("Tset tx chan ")){
-        txChan = received_message.substring(13).toInt();
-        Serial.print("Set tx channel to ");
-        Serial.println(txChan);
-      } else if(received_message.startsWith("Tset tx addh ")){
-        txAddh = received_message.substring(13).toInt();
-        Serial.print("Set tx addh to ");
-        Serial.println(txAddh);
-      } else if(received_message.startsWith("Tset tx addl ")){
-        txAddl = received_message.substring(13).toInt();
-        Serial.print("Set tx addl to ");
-        Serial.println(txAddl);
+    } else if(received_message[0] == 'G'){
+      if(received_message.startsWith("GAddh")){
+        printADDH();
+      } else if(received_message.startsWith("GAddl")){
+        printADDL();
+      } else if(received_message.startsWith("GParity")){
+        printParity();
+      } else if(received_message.startsWith("GAirDataRate")){
+        printAirDataRate();
+      } else if(received_message.startsWith("GBaudRate")){
+        printBaudRate();
+      } else if(received_message.startsWith("GChannel")){
+        printChannel();
+      } else if(received_message.startsWith("GTxPower")){
+        printTransmissionPower();
       }
-    } else if(received_message[0] == 'C'){
+    } else if(received_message[0] == 'S'){
       parseMessage(received_message.substring(1));
     }
   }

@@ -96,7 +96,7 @@ FIXED_TRANSMISSION_ENABLING_BIT getTransmissionMode(){
   return transmissionMode;
 }
 
-IO_DRIVE_MODE setIODriveMode(){
+IO_DRIVE_MODE getIODriveMode(){
   IO_DRIVE_MODE IODriveMode;
   switch(configuration.parameters.OPTION.bits.IODM){
     case IO_DRIVE_MODE_PUSH_PULL:
@@ -109,7 +109,7 @@ IO_DRIVE_MODE setIODriveMode(){
   return IODriveMode;
 }
 
-WIRELESS_WAKE_UP_TIME setWirelessWakeUpTime(){
+WIRELESS_WAKE_UP_TIME getWirelessWakeUpTime(){
   WIRELESS_WAKE_UP_TIME wirelessWakeUpTime;
   switch(configuration.parameters.OPTION.bits.WWUT){
     case WIRELESS_WAKE_UP_TIME_250ms:
@@ -140,7 +140,7 @@ WIRELESS_WAKE_UP_TIME setWirelessWakeUpTime(){
   return wirelessWakeUpTime;
 }
 
-FEC_SWITCH setFECSwitch(){
+FEC_SWITCH getFECSwitch(){
   FEC_SWITCH FECSwitch;
   switch(configuration.parameters.OPTION.bits.FECS){
     case FEC_SWITCH_OFF:
@@ -170,27 +170,42 @@ TRANSMISSION_POWER getTransmissionPower(){
   }
 }
 
+// #define DBG
+#ifdef DBG
+#define DSerial(...) GET_MACRO(__VA_ARGS__, DSerial2, DSerial1)(__VA_ARGS__)
+#define DSerialln(...) GET_MACRO(__VA_ARGS__, DSerialln2, DSerialln1)(__VA_ARGS__)
+#define ON_DEBUG(x) {x};
+#define Dinput(x) {input(x);}
+#else
+#define DSerial(...)
+#define DSerialln(...)
+#define ON_DEBUG(x)
+#define Dinput(x)
+#endif
+
 void setHEAD(HEAD head){
   configuration.parameters.HEAD = head;
+  ON_DEBUG(printChannel(););
 }
 
 void setADDH(uint8_t addh){
   configuration.parameters.ADDH = addh;
+  ON_DEBUG(printADDH(););
 }
 
 void setADDL(uint8_t addl){
   configuration.parameters.ADDL = addl;
+  ON_DEBUG(printADDL(););
 }
 
 void setParity(UART_PARITY_BIT parity){
-  DSerialln(configuration.parameters.SPED.byte, BIN);
   configuration.parameters.SPED.bits.UART_parity_bit = parity;
-  DSerialln(parity, BIN);
-  DSerialln(configuration.parameters.SPED.byte, BIN);
+  ON_DEBUG(printParity(););
 }
 
 void setBaudRate(TTL_UART_BAUD_RATE baudRate){
   configuration.parameters.SPED.bits.TTL_UART_baud_rate = baudRate;
+  ON_DEBUG(printBaudRate(););
 }
 
 void setBaudRate(unsigned long baudRate){
@@ -220,10 +235,12 @@ void setBaudRate(unsigned long baudRate){
       configuration.parameters.SPED.bits.TTL_UART_baud_rate = TTL_UART_baud_rate_115200;
       break;
   }
+  ON_DEBUG(printBaudRate(););
 }
 
 void setAirDataRate(AIR_DATA_RATE airDataRate){
   configuration.parameters.SPED.bits.Air_data_rate = airDataRate;
+  ON_DEBUG(printAirDataRate(););
 }
 
 void setAirDataRate(unsigned long airDataRate){
@@ -247,30 +264,37 @@ void setAirDataRate(unsigned long airDataRate){
       configuration.parameters.SPED.bits.Air_data_rate = Air_Data_Rate_19200;
       break;
   }
+  ON_DEBUG(printAirDataRate(););
 }
 
 void setChannel(uint8_t channel){
-  configuration.parameters.CHAN = channel;
+  configuration.parameters.CHAN = channel&0b00011111;
+  ON_DEBUG(printChannel(););
 }
 
 void setTransmissionMode(FIXED_TRANSMISSION_ENABLING_BIT transmissionMode){
   configuration.parameters.OPTION.bits.FTEB = transmissionMode;
+  ON_DEBUG(printTransmissionMode(););
 }
 
 void setIODriveMode(IO_DRIVE_MODE IODriveMode){
   configuration.parameters.OPTION.bits.IODM = IODriveMode;
+  // ON_DEBUG(printIODriveMode(););
 }
 
 void setWirelessWakeUpTime(WIRELESS_WAKE_UP_TIME wirelessWakeUpTime){
   configuration.parameters.OPTION.bits.WWUT = wirelessWakeUpTime;
+  // ON_DEBUG(printWirelessWakeUpTime(););
 }
 
 void setFECSwitch(FEC_SWITCH FECSwitch){
   configuration.parameters.OPTION.bits.FECS = FECSwitch;
+  // ON_DEBUG(printFECSwitch(););
 }
 
 void setTransmissionPower(TRANSMISSION_POWER power){
   configuration.parameters.OPTION.bits.TXPW = power;
+  ON_DEBUG(printTransmissionPower(););
 }
 
 void setTransmissionPower(uint8_t power){
@@ -288,6 +312,7 @@ void setTransmissionPower(uint8_t power){
       configuration.parameters.OPTION.bits.TXPW = TRANSMISSION_POWER_20dBm;
       break;
   }
+  ON_DEBUG(printTransmissionPower(););
 }
 
 void readConfiguration(){
@@ -323,51 +348,49 @@ void readConfiguration(){
   DSerial("\t");ON_DEBUG(printTransmissionPower();)
 }
 
-// #define DBG
-#ifdef DBG
-#define DSerial(...) GET_MACRO(__VA_ARGS__, DSerial2, DSerial1)(__VA_ARGS__)
-#define DSerialln(...) GET_MACRO(__VA_ARGS__, DSerialln2, DSerialln1)(__VA_ARGS__)
-#define ON_DEBUG(x) {x};
-#define Dinput(x) {input(x);}
-#else
-#define DSerial(...)
-#define DSerialln(...)
-#define ON_DEBUG(x)
-#define Dinput(x)
-#endif
+bool setConfiguration(){
+  OperationMode previousMode = getOperationMode();
+  int attemps = 0;
+  bool succeeded = false;
+  while(attemps<3 && !succeeded){
+    attemps++;
+    // DSerialln("Setting configuration to module");
+    setSleepMode();
+    flush();
 
-void setConfiguration(){
+    // Dinput("Enter to send configuration bytes");
+    write(configuration.bytes, 6);
+    DSerial("\t");
+    ON_DEBUG(for(int i = 0; i < 6; i++){Serial.print(configuration.bytes[i], HEX);Serial.print(" ");})
+    DSerialln("");
 
-  DSerialln("Setting configuration to module");
-  setSleepMode();
+    DSerialln("Waiting for response");
+    uint8_t params[6];
+    if(read(params, 6, 50)){
+      DSerial("\t");
+      ON_DEBUG(for(int i = 0; i < 6; i++){Serial.print(params[i], HEX);Serial.print(" ");})
+      DSerialln("");
 
-  // Dinput("Enter to send configuration bytes");
-  write(configuration.bytes, 6);
-  DSerial("\t");
-  ON_DEBUG(for(int i = 0; i < 6; i++){Serial.print(configuration.bytes[i], HEX);Serial.print(" ");})
-  DSerialln("");
-
-  DSerialln("Waiting for response");
-  uint8_t params[6];
-
-  read(params, 6);
-  DSerial("\t");
-  ON_DEBUG(for(int i = 0; i < 6; i++){Serial.print(params[i], HEX);Serial.print(" ");})
-  DSerialln("");
-
-  uint8_t b;
-  for(uint8_t i = 0; i < 6; i++){
-    b = params[i];
-    if(configuration.bytes[i] != b){
-      
-      DSerial("Failed to set configurations in byte ");
-      DSerialln(i);
-      DSerial(configuration.bytes[i], HEX);
-      DSerial(" != ");
-      DSerialln(b, HEX);
-      while(1);
+      uint8_t b;
+      succeeded = true;
+      for(uint8_t i = 0; i < 6; i++){
+        b = params[i];
+        if(configuration.bytes[i] != b){
+          DSerial("Failed to set configurations in byte ");
+          DSerialln(i);
+          DSerial(configuration.bytes[i], HEX);
+          DSerial(" != ");
+          DSerialln(b, HEX);
+          succeeded = false;
+          break;
+        }
+      }
     }
+    waitForAuxReady();
+    // ON_DEBUG(readConfiguration(););
   }
+  setOperationMode(previousMode);
+  return succeeded;
 }
 
 #ifdef DBG
