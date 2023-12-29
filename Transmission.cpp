@@ -172,7 +172,7 @@ void write(uint8_t* buffer, unsigned int size){
   auxLowFlag = false;
   if(size <= 58){
     writing_to_device = true;
-    DSerial("Writing: ");
+    DSerial("En écrivant: ");
     ON_DEBUG(printHEX(buffer, size);)
     waitForAuxReady();
     e32serial.write(buffer, size);
@@ -180,7 +180,7 @@ void write(uint8_t* buffer, unsigned int size){
     writing_to_device = true;
     transmission_started = false;
     transmission_finished = false;
-    DSerial("Writing: ");
+    DSerial("En écrivant: ");
     ON_DEBUG(printHEX(buffer, 58);)
     waitForAuxReady();
     e32serial.write(buffer, 58);
@@ -190,14 +190,18 @@ void write(uint8_t* buffer, unsigned int size){
       if(r > 58){
         r = 58;
       }
-      DSerialln("Waiting for transmission to start");
-      waitForTimeout(transmission_started, 50);
-      DSerialln("Waiting for transmission to finish");
-      waitForTimeout(transmission_finished, 50);
+      DSerialln("En attendant le début de l'émission radio");
+      if(waitForTimeout(transmission_started, 50)){
+        DSerial("Cela prend trop de temp pour démarrer le streaming");
+      }
+      DSerialln("En attendant le fin de l'émission radio");
+      if(!waitForTimeout(transmission_finished, 50)){
+        DSerial("Cela prend trop de temp pour terminer le streaming");
+      }
       writing_to_device = true;
       transmission_started = false;
       transmission_finished = false;
-      DSerial("Writing: ");
+      DSerial("En écrivant: ");
       ON_DEBUG(printHEX(&(buffer[i]), r);)
       waitForAuxReady();
       e32serial.write(&(buffer[i]), r);

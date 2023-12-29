@@ -12,30 +12,6 @@ uint8_t rxChan = 23;
 uint8_t rxAddh = 0xa1;
 uint8_t rxAddl = 0x06;
 
-struct Message{
-  char type[10];
-  char message_1[13];
-  char message_2[16];
-  float value_1;
-  float value_2;
-  float value_3;
-  float value_4;
-};
-
-Message message;
-unsigned int message_index = 0;
-
-/* 
-  Found this elegant code here: https://forum.arduino.cc/t/quickly-reversing-a-byte/115529/3
-  Ended up not using it though
-*/
-uint8_t inverse_byte(uint8_t b){
-  b = ((b>>1) & 0x55) | ((b<<1) & 0xAA);
-  b = ((b>>2) & 0x33) | ((b<<2) & 0xCC);
-  b = (b>>4) | (b<<4);
-  return b;
-}
-
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(57600);
@@ -43,18 +19,12 @@ void setup() {
   delay(1500);
   Serial.println("Testing e32serial fixed receiver");
 
-  pinMode(LED_BUILTIN, OUTPUT);
-  digitalWrite(LED_BUILTIN, LOW);
-
   initE32();
-
-  // resetModule();
-  // waitForAuxReady();
-  // readConfiguration();
-  getVersionInformation();
   Serial.println("Device initiated successfully");
 
-  // setHEAD(DONT_SAVE_ON_POWER_DOWN);
+  resetModule(); // Self check, not required
+
+  setHEAD(SAVE_ON_POWER_DOWN);
   setADDH(rxAddh);
   setADDL(rxAddl);
   setChannel(rxChan);
@@ -67,7 +37,8 @@ void setup() {
   setFECSwitch(FEC_SWITCH_ON);
   setTransmissionPower(TRANSMISSION_POWER_20dBm);
   setConfiguration();
-  readConfiguration();
+  
+  printConfiguration();
   setNormalMode();
 
   Serial.println("");
@@ -80,6 +51,18 @@ void setup() {
 String receiving_message = "";
 String received_message = "";
 bool message_received = false;
+
+struct Message{
+  char type[10];
+  char message_1[13];
+  char message_2[16];
+  float value_1;
+  float value_2;
+  float value_3;
+  float value_4;
+} message;
+
+unsigned int message_index = 0;
 
 void loop() {
   // put your main code here, to run repeatedly:
@@ -141,7 +124,23 @@ void checkSerial(){
         Serial.print("Set tx addl to ");
         Serial.println(txAddl);
       }
-    } else if(received_message[0] == 'C'){
+    } else if(received_message[0] == 'G'){
+      if(received_message.startsWith("GAddh")){
+        printADDH();
+      } else if(received_message.startsWith("GAddl")){
+        printADDL();
+      } else if(received_message.startsWith("GParity")){
+        printParity();
+      } else if(received_message.startsWith("GAirDataRate")){
+        printAirDataRate();
+      } else if(received_message.startsWith("GBaudRate")){
+        printBaudRate();
+      } else if(received_message.startsWith("GChannel")){
+        printChannel();
+      } else if(received_message.startsWith("GTxPower")){
+        printTransmissionPower();
+      }
+    } else if(received_message[0] == 'S'){
       parseMessage(received_message.substring(1));
     }
   }

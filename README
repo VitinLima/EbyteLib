@@ -1,3 +1,7 @@
+Messages importants
+
 En le mode de transmission transparent, les deux émetteurs droit être le même adresse éleveée et basse, et le même chaîne radio.
 
 En le mode de transmission fixe, le émetteur droit écrit le adresse élevée, le adresse basse, et le chaîne radio du récepteur
+
+Vous devez garantir que le récepteur avoir assez de mémoire en buffer par recevoir le message, sinon, un overflow pourrait se produire

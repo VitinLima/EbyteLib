@@ -5,9 +5,9 @@
 
 #include "EbyteLib.h"
 
-uint8_t txChan = 23;
-uint8_t txAddh = 0xa1;
-uint8_t txAddl = 0x06;
+uint8_t rxtxChan = 23;
+uint8_t rxtxAddh = 0xa1;
+uint8_t rxtxAddl = 0x06;
 
 void setup() {
   // put your setup code here, to run once:
@@ -19,17 +19,12 @@ void setup() {
   digitalWrite(LED_BUILTIN, LOW);
 
   initE32();
-
-  // resetModule();
-  // waitForAuxReady();
-  // readConfiguration();
-  getVersionInformation();
   Serial.println("Device initiated successfully");
 
-  // setHEAD(DONT_SAVE_ON_POWER_DOWN);
-  setADDH(0xff);
-  setADDL(0xff);
-  setChannel(rxChan);
+  setHEAD(SAVE_ON_POWER_DOWN);
+  setADDH(rxtxAddh);
+  setADDL(rxtxAddl);
+  setChannel(rxtxChan);
   setParity(UART_PARITY_BIT_8N1);
   setBaudRate(TTL_UART_baud_rate_9600);
   setAirDataRate(Air_Data_Rate_9600);
@@ -39,7 +34,8 @@ void setup() {
   setFECSwitch(FEC_SWITCH_ON);
   setTransmissionPower(TRANSMISSION_POWER_20dBm);
   setConfiguration();
-  readConfiguration();
+  
+  printConfiguration();
   setNormalMode();
 
   Serial.println("");
@@ -70,12 +66,11 @@ void loop() {
   checkSerials();
 
   if(state_sending){
-    // asynchronousWrite(buffer, N+1);
     asynchronousWrite((uint8_t*)&message, sizeof(message));
     printTransmissionResult(5000);
   }
 
-  delay(2000);
+  delay(500);
 }
 
 void checkSerials(){
@@ -110,21 +105,23 @@ void checkSerial(){
       state_sending = !state_sending;
       Serial.print("Toggled sending state to ");
       Serial.println(state_sending);
-    } else if(received_message[0] == 'T'){
-      if(received_message.startsWith("Tset tx chan ")){
-        txChan = received_message.substring(13).toInt();
-        Serial.print("Set tx channel to ");
-        Serial.println(txChan);
-      } else if(received_message.startsWith("Tset tx addh ")){
-        txAddh = received_message.substring(13).toInt();
-        Serial.print("Set tx addh to ");
-        Serial.println(txAddh);
-      } else if(received_message.startsWith("Tset tx addl ")){
-        txAddl = received_message.substring(13).toInt();
-        Serial.print("Set tx addl to ");
-        Serial.println(txAddl);
+    } else if(received_message[0] == 'G'){
+      if(received_message.startsWith("GAddh")){
+        printADDH();
+      } else if(received_message.startsWith("GAddl")){
+        printADDL();
+      } else if(received_message.startsWith("GParity")){
+        printParity();
+      } else if(received_message.startsWith("GAirDataRate")){
+        printAirDataRate();
+      } else if(received_message.startsWith("GBaudRate")){
+        printBaudRate();
+      } else if(received_message.startsWith("GChannel")){
+        printChannel();
+      } else if(received_message.startsWith("GTxPower")){
+        printTransmissionPower();
       }
-    } else if(received_message[0] == 'C'){
+    } else if(received_message[0] == 'S'){
       parseMessage(received_message.substring(1));
     }
   }

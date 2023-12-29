@@ -22,14 +22,9 @@ void setup(){
   digitalWrite(LED_BUILTIN, LOW);
 
   initE32();
-
-  // resetModule();
-  // waitForAuxReady();
-  // readConfiguration();
-  getVersionInformation();
   Serial.println("Device initiated successfully");
 
-  // setHEAD(DONT_SAVE_ON_POWER_DOWN);
+  setHEAD(SAVE_ON_POWER_DOWN);
   setADDH(rxAddh);
   setADDL(rxAddl);
   setChannel(rxChan);
@@ -42,7 +37,8 @@ void setup(){
   setFECSwitch(FEC_SWITCH_ON);
   setTransmissionPower(TRANSMISSION_POWER_20dBm);
   setConfiguration();
-  readConfiguration();
+  
+  printConfiguration();
   setNormalMode();
 
   Serial.println("");
@@ -76,7 +72,7 @@ void loop(){
     printTransmissionResult(5000);
   }
 
-  delay(2000);
+  delay(500);
 }
 
 void checkSerials(){
@@ -125,7 +121,23 @@ void checkSerial(){
         Serial.print("Set tx addl to ");
         Serial.println(txAddl);
       }
-    } else if(received_message[0] == 'C'){
+    } else if(received_message[0] == 'G'){
+      if(received_message.startsWith("GAddh")){
+        printADDH();
+      } else if(received_message.startsWith("GAddl")){
+        printADDL();
+      } else if(received_message.startsWith("GParity")){
+        printParity();
+      } else if(received_message.startsWith("GAirDataRate")){
+        printAirDataRate();
+      } else if(received_message.startsWith("GBaudRate")){
+        printBaudRate();
+      } else if(received_message.startsWith("GChannel")){
+        printChannel();
+      } else if(received_message.startsWith("GTxPower")){
+        printTransmissionPower();
+      }
+    } else if(received_message[0] == 'S'){
       parseMessage(received_message.substring(1));
     }
   }

@@ -5,9 +5,9 @@
 
 #include "EbyteLib.h"
 
-uint8_t rxChan = 23;
-uint8_t rxAddh = 0xa1;
-uint8_t rxAddl = 0x06;
+uint8_t rxtxChan = 23;
+uint8_t rxtxAddh = 0xa1;
+uint8_t rxtxAddl = 0x06;
 
 void setup() {
   // put your setup code here, to run once:
@@ -16,17 +16,14 @@ void setup() {
   Serial.println("Testing e32serial transparent receiver");
 
   initE32();
-
-  // resetModule();
-  // waitForAuxReady();
-  // readConfiguration();
-  getVersionInformation();
   Serial.println("Device initiated successfully");
 
-  // setHEAD(DONT_SAVE_ON_POWER_DOWN);
-  setADDH(rxAddh);
-  setADDL(rxAddl);
-  setChannel(rxChan);
+  resetModule();
+
+  setHEAD(SAVE_ON_POWER_DOWN);
+  setADDH(rxtxAddh);
+  setADDL(rxtxAddl);
+  setChannel(rxtxChan);
   setParity(UART_PARITY_BIT_8N1);
   setBaudRate(TTL_UART_baud_rate_19200);
   setAirDataRate(Air_Data_Rate_2400);
@@ -36,9 +33,9 @@ void setup() {
   setFECSwitch(FEC_SWITCH_ON);
   setTransmissionPower(TRANSMISSION_POWER_20dBm);
   setConfiguration();
-  readConfiguration();
+
+  printConfiguration();
   setNormalMode();
-  // detachInterrupt(digitalPinToInterrupt(AUX));
 
   Serial.println("");
   Serial.println("");

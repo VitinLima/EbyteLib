@@ -5,9 +5,9 @@
 
 #include "EbyteLib.h"
 
-uint8_t txChan = 23;
-uint8_t txAddh = 0xa1;
-uint8_t txAddl = 0x06;
+uint8_t rxtxChan = 23;
+uint8_t rxtxAddh = 0xa1;
+uint8_t rxtxAddl = 0x06;
 
 const int N = 100;
 uint8_t buffer[N+1]; // sending a buffer byte by byte
@@ -19,17 +19,14 @@ void setup() {
   Serial.println("Testing e32serial asynchronous transparent transmitter");
 
   initE32();
-
-  // resetModule();
-  // waitForAuxReady();
-  // readConfiguration();
-  getVersionInformation();
   Serial.println("Device initiated successfully");
 
-  // setHEAD(DONT_SAVE_ON_POWER_DOWN);
-  setADDH(txAddh);
-  setADDL(txAddl);
-  setChannel(txChan);
+  resetModule();
+
+  setHEAD(SAVE_ON_POWER_DOWN);
+  setADDH(rxtxAddh);
+  setADDL(rxtxAddl);
+  setChannel(rxtxChan);
   setParity(UART_PARITY_BIT_8N1);
   setBaudRate(TTL_UART_baud_rate_19200);
   setAirDataRate(Air_Data_Rate_2400);
@@ -39,9 +36,11 @@ void setup() {
   setFECSwitch(FEC_SWITCH_ON);
   setTransmissionPower(TRANSMISSION_POWER_20dBm);
   setConfiguration();
-  readConfiguration();
+
+  printConfiguration();
   setNormalMode();
 
+  // Populating buffer
   for(int i = 0; i < N; i++){
     buffer[i] = 0xA1;
   }
