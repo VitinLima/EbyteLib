@@ -1,3 +1,8 @@
+/*
+    Fixed Transmitter => Fixed Receiver
+    Asynchronous Fixed Transmitter => Fixed Receiver
+*/
+
 #include "EbyteLib.h"
 
 uint8_t chan = 23;
@@ -14,12 +19,6 @@ struct Message{
 
 Message message;
 unsigned int message_index = 0;
-
-// class StrMessage{
-//   bool msgReceived;
-//   String incommingMessage = "";
-//   String message = "";
-// };
 
 /* 
   Found this elegant code here: https://forum.arduino.cc/t/quickly-reversing-a-byte/115529/3

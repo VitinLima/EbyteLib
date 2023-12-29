@@ -1,3 +1,8 @@
+/*
+    Asynchronous Fixed Transmitter => Asynchronous Fixed Receiver (TODO)
+    Asynchronous Fixed Transmitter => Fixed Receiver
+*/
+
 #include "EbyteLib.h"
 
 uint8_t txChan = 23;
@@ -8,7 +13,7 @@ uint8_t rxAddh = 0x8f;
 uint8_t rxAddl = 0xf7;
 
 void setup(){
-  Serial.begin(57600);
+  Serial.begin(1200);
 
   delay(1500);
   Serial.println("Testing e32serial asynchronous fixed transmitter");
@@ -71,7 +76,7 @@ void loop(){
     printTransmissionResult(2000);
   }
 
-  delay(200);
+  delay(2000);
 }
 
 void checkSerials(){

@@ -1,3 +1,8 @@
+/*
+    Asynchronous Transparent Transmitter => Asynchronous Transparent Receiver (TODO)
+    Asynchronous Transparent Transmitter => Transparent Receiver
+*/
+
 #include "EbyteLib.h"
 
 uint8_t chan = 23;
@@ -74,7 +79,7 @@ void loop() {
     printTransmissionResult(2000);
   }
 
-  delay(500);
+  delay(2000);
 }
 
 void checkSerials(){

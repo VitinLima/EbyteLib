@@ -85,7 +85,8 @@ void auxRisingISR(){
       if(asyncronousTransmissionFlag){
         asyncronousTransmissionCallback();
       } else if(transmission_started){
-        transmission_finished;
+        transmission_finished = true;
+        transmission_started = false;
       }else{
         attachInterrupt(digitalPinToInterrupt(AUX), auxFallingISR, FALLING);
       }
@@ -103,6 +104,7 @@ void auxFallingISR(){
     case NORMAL:
       if(writing_to_device){
         transmission_started = true;
+        transmission_finished = false;
       }
       break;
     case SLEEP:

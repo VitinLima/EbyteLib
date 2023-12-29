@@ -1,3 +1,8 @@
+/*
+    Transparent Transmitter => Transparent Receiver
+    Asynchronous Transparent Transmitter => Transparent Receiver
+*/
+
 #include "EbyteLib.h"
 
 uint8_t rxChan = 23;

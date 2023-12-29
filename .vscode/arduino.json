@@ -1,8 +1,8 @@
 {
     "intelliSenseGen": "global",
-    "port": "/dev/ttyACM1",
+    "port": "/dev/ttyACM0",
     "configuration": "bootloader=uart0,eeprom=keep,variant=modelP,BOD=2v7,LTO=Os_flto,clock=8MHz_internal",
     "board": "MiniCore:avr:328",
     "output": "Examples/dist",
-    "sketch": "Examples/E32_Receiver_Fixed/E32_Receiver_Fixed.ino"
+    "sketch": "Examples/E32_Transmitter_Transparent/E32_Transmitter_Transparent.ino"
 }

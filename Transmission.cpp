@@ -193,7 +193,9 @@ void write(uint8_t byte){
   // DSerial("Writing: ");
   // ON_DEBUG(printHEX(byte);)
   waitForAuxReady();
+  noInterrupts();
   e32serial.write(byte);
+  noInterrupts();
   waitForAuxReady();
 }
 

@@ -1,3 +1,8 @@
+/*
+    Fixed Transmitter => Fixed Receiver
+    Fixed Transmitter => Asynchronous Fixed Receiver (TODO)
+*/
+
 #include "EbyteLib.h"
 
 uint8_t txChan = 23;
@@ -71,7 +76,7 @@ void loop(){
     printTransmissionResult(5000);
   }
 
-  delay(200);
+  delay(2000);
 }
 
 void checkSerials(){
