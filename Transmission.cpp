@@ -170,59 +170,38 @@ void printFixedTransmission(uint8_t ADDH, uint8_t ADDL, uint8_t CHAN, const char
 void write(uint8_t* buffer, unsigned int size){
   auxHighFlag = false;
   auxLowFlag = false;
-  writing_to_device = true;
   if(size <= 58){
+    writing_to_device = true;
     DSerial("Writing: ");
     ON_DEBUG(printHEX(buffer, size);)
     waitForAuxReady();
     e32serial.write(buffer, size);
-    waitForAuxReady();
   } else{
+    writing_to_device = true;
     transmission_started = false;
     transmission_finished = false;
-    unsigned long int t = millis();
+    DSerial("Writing: ");
+    ON_DEBUG(printHEX(buffer, 58);)
     waitForAuxReady();
-    // detachInterrupt(digitalPinToInterrupt(AUX));
-    DSerialln(digitalRead(AUX));
-    // noInterrupts();
-    e32serial.write(buffer, 50);
-    // interrupts();
-
-    // while(millis() < t + 500){
-    //   DSerialln(digitalRead(AUX));
-    //   delayMicroseconds(200);
-    // }
-    // attachInterrupt(digitalPinToInterrupt(AUX), auxFallingISR, FALLING);
-    while(digitalRead(AUX));
-    while(!digitalRead(AUX));
-    // delay(50);
-    // noInterrupts();
-    e32serial.write(buffer + 50, 51);
-    // interrupts();
-    waitForAuxReady();
-    // unsigned int r;
-    // for(int i = 0; i < size; i+=58){
-    //   r = size - i;
-    //   if(r > 58){
-    //     r = 58;
-    //   }
-    //   DSerial("Writing: ");
-    //   ON_DEBUG(printHEX(&(buffer[i]), r);)
-    //   waitForAuxReady();
-    //   transmission_started = false;
-    //   transmission_finished = false;
-    //   noInterrupts();
-    //   e32serial.write(&(buffer[i]), r);
-    //   interrupts();
-    //   waitForAuxReady();
-    //   while(!transmission_started);
-    //   DSerialln("Writing transmission has started");
-    //   while(!transmission_finished);
-    //   // delay(500);
-    //   waitForAuxReady();
-    //   DSerial(r);
-    //   DSerialln(" bytes transmitted");
-    // }
+    e32serial.write(buffer, 58);
+    unsigned int r;
+    for(int i = 58; i < size; i+=58){
+      r = size - i;
+      if(r > 58){
+        r = 58;
+      }
+      DSerialln("Waiting for transmission to start");
+      waitForTimeout(transmission_started, 50);
+      DSerialln("Waiting for transmission to finish");
+      waitForTimeout(transmission_finished, 50);
+      writing_to_device = true;
+      transmission_started = false;
+      transmission_finished = false;
+      DSerial("Writing: ");
+      ON_DEBUG(printHEX(&(buffer[i]), r);)
+      waitForAuxReady();
+      e32serial.write(&(buffer[i]), r);
+    }
   }
 }
 
@@ -241,9 +220,9 @@ void write(uint8_t byte){
   // DSerial("Writing: ");
   // ON_DEBUG(printHEX(byte);)
   waitForAuxReady();
-  noInterrupts();
+  // noInterrupts();
   e32serial.write(byte);
-  noInterrupts();
+  // noInterrupts();
   waitForAuxReady();
 }
 

@@ -58,7 +58,7 @@ void resetModule(){
 
   waitForAuxReady();
   // delay(1000);
-  DSerial("Module has been reset successfully");
+  DSerial("Module has reset successfully");
 }
 
 // void auxChangeISR(){
@@ -81,6 +81,7 @@ void resetModule(){
 void auxRisingISR(){
   DSerialln("Aux rising");
   auxHighFlag = true;
+  attachInterrupt(digitalPinToInterrupt(AUX), auxFallingISR, FALLING);
   switch(current_operation_mode){
     case NORMAL:
       if(asyncronousTransmissionFlag){
@@ -88,13 +89,12 @@ void auxRisingISR(){
       } else if(transmission_started){
         DSerialln("Transmission finished");
         transmission_finished = true;
-        attachInterrupt(digitalPinToInterrupt(AUX), auxFallingISR, FALLING);
       } else{
-        attachInterrupt(digitalPinToInterrupt(AUX), auxFallingISR, FALLING);
+        // attachInterrupt(digitalPinToInterrupt(AUX), auxFallingISR, FALLING);
       }
       break;
     case SLEEP:
-      attachInterrupt(digitalPinToInterrupt(AUX), auxFallingISR, FALLING);
+      // attachInterrupt(digitalPinToInterrupt(AUX), auxFallingISR, FALLING);
       break;
   }
 }
@@ -107,7 +107,6 @@ void auxFallingISR(){
       if(writing_to_device){
         DSerialln("Transmission started");
         transmission_started = true;
-        transmission_finished = false;
       }
       break;
     case SLEEP:
