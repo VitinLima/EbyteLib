@@ -16,7 +16,6 @@ void setup() {
   // put your setup code here, to run once:
   Serial.begin(57600);
 
-  delay(1500);
   Serial.println("Testing e32serial fixed receiver");
 
   initE32();
@@ -30,7 +29,7 @@ void setup() {
   setChannel(rxChan);
   setParity(UART_PARITY_BIT_8N1);
   setBaudRate(TTL_UART_baud_rate_9600);
-  setAirDataRate(Air_Data_Rate_9600);
+  setAirDataRate(Air_Data_Rate_2400);
   setTransmissionMode(FIXED_TRANSMISSION_MODE);
   setIODriveMode(IO_DRIVE_MODE_PUSH_PULL);
   setWirelessWakeUpTime(WIRELESS_WAKE_UP_TIME_250ms);
@@ -80,13 +79,16 @@ void checkSerials(){
 void checkE32Serial(){
   char c;
   while(e32serial.available()){
+    if(e32serial.overflow()){
+      Serial.println("Serial OVERFLOW");
+    }
     ((uint8_t*)&message)[message_index++] = (uint8_t)e32serial.read();
     if(message_index < 2){
       
     } else if(message_index == 2){
       Serial.print("\n\nReceiving message of length ");
       Serial.println(message.length);
-    } else if(message_index==sizeof(message)){
+    } else if(message_index==message.length){
       message_index = 0;
       Serial.print("Message received!\n\n");
       Serial.print("Message type: ");Serial.println(message.type);
