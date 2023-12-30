@@ -206,7 +206,7 @@ void getVersionInformation(){
 void printTransmissionResult(unsigned long int timeout){
   long unsigned int timeout_limit = millis() + timeout;
   while(millis() < timeout_limit){
-    if(transmission_finished && !asyncronousTransmissionFlag){
+    if(transmission_started && transmission_finished && !asyncronousTransmissionFlag){
       Serial.println("Success");
       return;
     }

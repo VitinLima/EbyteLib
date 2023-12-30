@@ -218,34 +218,23 @@ void write(uint8_t byte){
   while(asyncronousTransmissionFlag);
   auxHighFlag = false;
   auxLowFlag = false;
-  // DSerial("Writing: ");
-  // ON_DEBUG(printHEX(byte);)
   waitForAuxReady();
-  // noInterrupts();
   e32serial.write(byte);
-  // noInterrupts();
   waitForAuxReady();
 }
 
 void asynchronousWrite(uint8_t* buffer, unsigned int size){
   while(asyncronousTransmissionFlag);
   if(size <= 58){ // If message is too small, simply write it
-    // if(asyncronousTransmissionFlag){
-    //   write_to_fifo(buffer, size);
-    // } else{
-      write(buffer, size);
-    // }
+    write(buffer, size);
   } else{ // If message is long, more packets are required, turn on asynchronous transmission
-    Serial.println("Starting asynchronous transmission");
+    DSerialln("Starting asynchronous transmission");
     D3Serialln("writing to fifo");
     write_to_fifo(&buffer[58], size-58);
     D3Serialln("Setting async flag");
     asyncronousTransmissionFlag = true;
     D3Serialln("First transmission"); // Send first 58 bytes, then the interrupts will ensure the rest is sent
     write(buffer, 58);
-  //   noInterrupts();
-  //   asyncronousTransmissionCallback();
-  //   interrupts();
   }
 }
 
@@ -332,7 +321,7 @@ bool read(uint8_t* buffer, unsigned int size, unsigned long int timeout){
 bool getTransmissionResult(unsigned long int timeout){
   long unsigned int timeout_limit = millis() + timeout;
   while(millis() < timeout_limit){
-    if(transmission_finished){
+    if(transmission_started && transmission_finished  && !asyncronousTransmissionFlag){
       return true;
     }
   }

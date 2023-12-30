@@ -16,9 +16,6 @@ void waitForAuxReady(){
 void initE32(){
   e32serial.begin(9600);
 
-  // attachInterrupt(digitalPinToInterrupt(AUX), auxChangeISR, CHANGE);
-  // attachInterrupt(digitalPinToInterrupt(AUX), auxRisingISR, RISING);
-
   pinMode(M0, OUTPUT);
   pinMode(M1, OUTPUT);
   pinMode(AUX, INPUT_PULLUP);
@@ -33,6 +30,8 @@ void initE32(){
   DSerial("done");
   waitForAuxReady();
 
+  // attachInterrupt(digitalPinToInterrupt(AUX), auxChangeISR, CHANGE);
+  // attachInterrupt(digitalPinToInterrupt(AUX), auxRisingISR, RISING);
   attachInterrupt(digitalPinToInterrupt(AUX), auxFallingISR, FALLING);
   
   DSerial("Module initiated and ready to accept instructions");
@@ -57,15 +56,10 @@ void resetModule(){
   while(digitalRead(AUX));
 
   waitForAuxReady();
-  // delay(1000);
   DSerial("Module has reset successfully");
 }
 
-// void auxChangeISR(){
-//   // DSerial("Aux change");
-// }
-
-#define DBG
+// #define DBG
 #ifdef DBG
 #define DSerial(...) GET_MACRO(__VA_ARGS__, DSerial2, DSerial1)(__VA_ARGS__)
 #define DSerialln(...) GET_MACRO(__VA_ARGS__, DSerialln2, DSerialln1)(__VA_ARGS__)
@@ -90,11 +84,10 @@ void auxRisingISR(){
         DSerialln("Transmission finished");
         transmission_finished = true;
       } else{
-        // attachInterrupt(digitalPinToInterrupt(AUX), auxFallingISR, FALLING);
+
       }
       break;
     case SLEEP:
-      // attachInterrupt(digitalPinToInterrupt(AUX), auxFallingISR, FALLING);
       break;
   }
 }
@@ -122,6 +115,10 @@ void auxFallingISR(){
 #define ON_DEBUG(x)
 #define Dinput(x)
 #endif
+
+// void auxChangeISR(){
+//   // DSerial("Aux change");
+// }
 
 // void onAuxHigh(){
 //   DSerial("Aux High");
