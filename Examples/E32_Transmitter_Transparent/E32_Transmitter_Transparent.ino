@@ -26,7 +26,7 @@ void setup() {
   setChannel(rxtxChan);
   setParity(UART_PARITY_BIT_8N1);
   setBaudRate(TTL_UART_baud_rate_9600);
-  setAirDataRate(Air_Data_Rate_9600);
+  setAirDataRate(Air_Data_Rate_2400);
   setTransmissionMode(TRANSPARENT_TRANSMISSION_MODE);
   setIODriveMode(IO_DRIVE_MODE_PUSH_PULL);
   setWirelessWakeUpTime(WIRELESS_WAKE_UP_TIME_250ms);
@@ -51,6 +51,7 @@ bool message_received = false;
 bool state_sending = false;
 
 struct Message{
+  const unsigned int length = sizeof(Message);
   const char type[10] = "Telemetry";
   const char message_1[13] = "Hello There!";
   const char message_2[16] = "General Kenobi!";

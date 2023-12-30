@@ -54,6 +54,7 @@ bool message_received = false;
 bool state_sending = false;
 
 struct Message{
+  const unsigned int length = sizeof(Message);
   const char type[10] = "Telemetry";
   const char message_1[13] = "Hello There!";
   const char message_2[16] = "General Kenobi!";

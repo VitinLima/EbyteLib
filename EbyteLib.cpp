@@ -65,7 +65,7 @@ void resetModule(){
 //   // DSerial("Aux change");
 // }
 
-// #define DBG
+#define DBG
 #ifdef DBG
 #define DSerial(...) GET_MACRO(__VA_ARGS__, DSerial2, DSerial1)(__VA_ARGS__)
 #define DSerialln(...) GET_MACRO(__VA_ARGS__, DSerialln2, DSerialln1)(__VA_ARGS__)
@@ -107,6 +107,7 @@ void auxFallingISR(){
       if(writing_to_device){
         DSerialln("Transmission started");
         transmission_started = true;
+        writing_to_device = false;
       }
       break;
     case SLEEP:

@@ -93,7 +93,7 @@ void printTransmissionPower(){
   }
 }
 
-#define DBG
+// #define DBG
 #ifdef DBG
 #define DSerial(...) GET_MACRO(__VA_ARGS__, DSerial2, DSerial1)(__VA_ARGS__)
 #define DSerialln(...) GET_MACRO(__VA_ARGS__, DSerialln2, DSerialln1)(__VA_ARGS__)
@@ -206,7 +206,7 @@ void getVersionInformation(){
 void printTransmissionResult(unsigned long int timeout){
   long unsigned int timeout_limit = millis() + timeout;
   while(millis() < timeout_limit){
-    if(transmission_finished){
+    if(transmission_finished && !asyncronousTransmissionFlag){
       Serial.println("Success");
       return;
     }

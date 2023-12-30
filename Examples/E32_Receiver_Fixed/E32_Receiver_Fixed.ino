@@ -52,7 +52,9 @@ String receiving_message = "";
 String received_message = "";
 bool message_received = false;
 
+#define N 50 // Size of the added array (+1 for an end of line char) 
 struct Message{
+  unsigned int length;
   char type[10];
   char message_1[13];
   char message_2[16];
@@ -60,6 +62,7 @@ struct Message{
   float value_2;
   float value_3;
   float value_4;
+  uint8_t bytes[N+1]; // Add array so that the message requires more than one packet to be sent
 } message;
 
 unsigned int message_index = 0;
@@ -78,9 +81,14 @@ void checkE32Serial(){
   char c;
   while(e32serial.available()){
     ((uint8_t*)&message)[message_index++] = (uint8_t)e32serial.read();
-    if(message_index==sizeof(message)){
+    if(message_index < 2){
+      
+    } else if(message_index == 2){
+      Serial.print("\n\nReceiving message of length ");
+      Serial.println(message.length);
+    } else if(message_index==sizeof(message)){
       message_index = 0;
-      Serial.print("\n\nMessage received!\n\n");
+      Serial.print("Message received!\n\n");
       Serial.print("Message type: ");Serial.println(message.type);
       Serial.print("Message 1: ");Serial.println(message.message_1);
       Serial.print("Message 2: ");Serial.println(message.message_2);
@@ -88,6 +96,24 @@ void checkE32Serial(){
       Serial.print("Value 2: ");Serial.println(message.value_2);
       Serial.print("Value 3: ");Serial.println(message.value_3);
       Serial.print("Value 4: ");Serial.println(message.value_4);
+      if(message.length==108){
+        for(uint8_t i = 0; i < N; i++){
+          if(message.bytes[i] != 0xa1){
+            Serial.print("Error on byte ");
+            Serial.print(i);
+            Serial.print(". Expected 0xa1, received 0x");
+            Serial.println(message.bytes[i], HEX);
+          }
+        }
+        if(message.bytes[N] != (uint8_t)'\n'){
+          Serial.print("Error on last byte (");
+          Serial.print(N);
+          Serial.print("), expected ");
+          Serial.print((uint8_t)'\n', HEX);
+          Serial.print(", received ");
+          Serial.println(message.bytes[N], HEX);
+        }
+      }
     }
   }
 }

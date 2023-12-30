@@ -9,14 +9,24 @@ uint8_t rxtxChan = 23;
 uint8_t rxtxAddh = 0xa1;
 uint8_t rxtxAddl = 0x06;
 
+#define N 50 // Size of the added array (+1 for an end of line char)
+struct Message{
+  const unsigned int length = sizeof(Message);
+  const char type[10] = "Telemetry";
+  const char message_1[13] = "Hello There!";
+  const char message_2[16] = "General Kenobi!";
+  float value_1 = 0.1;
+  float value_2 = 0.2;
+  float value_3 = 0.3;
+  float value_4 = 0.4;
+  uint8_t bytes[N+1]; // Add array so that the message requires more than one packet to be sent
+} message; // sending a struct with multiple fields
+
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(57600);
 
   Serial.println("Testing e32serial asynchronous transparent transmitter");
-
-  pinMode(LED_BUILTIN, OUTPUT);
-  digitalWrite(LED_BUILTIN, LOW);
 
   initE32();
   Serial.println("Device initiated successfully");
@@ -27,7 +37,7 @@ void setup() {
   setChannel(rxtxChan);
   setParity(UART_PARITY_BIT_8N1);
   setBaudRate(TTL_UART_baud_rate_9600);
-  setAirDataRate(Air_Data_Rate_9600);
+  setAirDataRate(Air_Data_Rate_2400);
   setTransmissionMode(TRANSPARENT_TRANSMISSION_MODE);
   setIODriveMode(IO_DRIVE_MODE_PUSH_PULL);
   setWirelessWakeUpTime(WIRELESS_WAKE_UP_TIME_250ms);
@@ -37,6 +47,11 @@ void setup() {
   
   printConfiguration();
   setNormalMode();
+
+  for(uint8_t i = 0; i < N; i++){ // Initialize array
+    message.bytes[i] = 0xA1;
+  }
+  message.bytes[N] = (uint8_t)'\n';
 
   Serial.println("");
   Serial.println("");
@@ -50,16 +65,6 @@ String received_message = "";
 bool message_received = false;
 
 bool state_sending = false;
-
-struct Message{
-  const char type[10] = "Telemetry";
-  const char message_1[13] = "Hello There!";
-  const char message_2[16] = "General Kenobi!";
-  float value_1 = 0.1;
-  float value_2 = 0.2;
-  float value_3 = 0.3;
-  float value_4 = 0.4;
-} message; // sending a struct with multiple fields
 
 void loop() {
   // put your main code here, to run repeatedly:

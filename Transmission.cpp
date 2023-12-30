@@ -73,15 +73,10 @@ void asyncronousTransmissionCallback(){
   write(transmitting_buffer, r);
   if(last_packet){ // can send all remaining bytes together
     DSerialln("Last packet");
-    DSerialln("Transmission finished");
     asyncronousTransmissionFlag = false; // all bytes transmitted, end asyncronous transmission
-    transmission_finished = true;
-    // detachInterrupt(digitalPinToInterrupt(AUX));
+    DSerialln("Asynchronous transmission finished");
   } else{ // send next 58 bytes, wait for finishing and send the rest
     DSerialln("Transmitting packet");
-    // write(transmitting_buffer, 58);
-    // fifo_buffer_pointer += 58;
-    // fifo_buffer_length -= 58;
   }
     fifo_buffer_length = 0;
   if(fifo_buffer_pointer==fifo_buffer_max_length){
@@ -172,6 +167,8 @@ void write(uint8_t* buffer, unsigned int size){
   auxLowFlag = false;
   if(size <= 58){
     writing_to_device = true;
+    transmission_started = false;
+    transmission_finished = false;
     DSerial("En écrivant: ");
     ON_DEBUG(printHEX(buffer, size);)
     waitForAuxReady();
@@ -239,6 +236,7 @@ void asynchronousWrite(uint8_t* buffer, unsigned int size){
       write(buffer, size);
     // }
   } else{ // If message is long, more packets are required, turn on asynchronous transmission
+    Serial.println("Starting asynchronous transmission");
     D3Serialln("writing to fifo");
     write_to_fifo(&buffer[58], size-58);
     D3Serialln("Setting async flag");
