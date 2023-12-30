@@ -51,7 +51,7 @@ bool message_received = false;
 bool state_sending = false;
 
 struct Message{
-  const unsigned int length = sizeof(Message);
+  const unsigned int length = sizeof(Message); // The lenght of the message, so that the receiver can determine if it is the synchronous or asynchronous examples messages automatically, since they have different lengths
   const char type[10] = "Telemetry";
   const char message_1[13] = "Hello There!";
   const char message_2[16] = "General Kenobi!";

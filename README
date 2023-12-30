@@ -5,3 +5,6 @@ En le mode de transmission transparent, les deux émetteurs droit être le même
 En le mode de transmission fixe, le émetteur droit écrit le adresse élevée, le adresse basse, et le chaîne radio du récepteur
 
 Vous devez garantir que le récepteur avoir assez de mémoire en buffer par recevoir le message, sinon, un overflow pourrait se produire
+
+TODO
+Currently, the fixed transmission examples are not working because the message size with the legnth field has become 57, and now it is in a wierd limbo where with the additional addh, addl, and channel bytes it must be sent in two packages. Make the examples by removing the float value_4 field, but this wont solve the bug, it has to be fixed by separating the message in packets of 55 bytes and preapending the header to each packet before sending. Currently, it preapends the header before writing to the fifo, only for the first packet

@@ -28,11 +28,7 @@ struct Message{
 void setup(){
   Serial.begin(57600);
 
-  delay(1500);
   Serial.println("Testing e32serial asynchronous fixed transmitter");
-
-  pinMode(LED_BUILTIN, OUTPUT);
-  digitalWrite(LED_BUILTIN, LOW);
 
   initE32();
   Serial.println("Device initiated successfully");
@@ -42,7 +38,7 @@ void setup(){
   setADDL(rxAddl);
   setChannel(rxChan);
   setParity(UART_PARITY_BIT_8N1);
-  setBaudRate(TTL_UART_baud_rate_9600);
+  setBaudRate(TTL_UART_baud_rate_2400);
   setAirDataRate(Air_Data_Rate_9600);
   setTransmissionMode(FIXED_TRANSMISSION_MODE);
   setIODriveMode(IO_DRIVE_MODE_PUSH_PULL);

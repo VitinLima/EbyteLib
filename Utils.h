@@ -36,4 +36,6 @@ bool waitForTimeout(bool foo, unsigned long int timeout);
 
 void parseMessage(String received_message);
 
+uint8_t inverse_byte(uint8_t b);
+
 #endif

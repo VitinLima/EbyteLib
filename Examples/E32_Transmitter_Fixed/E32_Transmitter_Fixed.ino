@@ -15,7 +15,6 @@ uint8_t rxAddl = 0xf7;
 void setup(){
   Serial.begin(57600);
 
-  delay(1500);
   Serial.println("Testing e32serial fixed transmitter");
 
   initE32();
@@ -29,7 +28,7 @@ void setup(){
   setChannel(rxChan);
   setParity(UART_PARITY_BIT_8N1);
   setBaudRate(TTL_UART_baud_rate_9600);
-  setAirDataRate(Air_Data_Rate_9600);
+  setAirDataRate(Air_Data_Rate_2400);
   setTransmissionMode(FIXED_TRANSMISSION_MODE);
   setIODriveMode(IO_DRIVE_MODE_PUSH_PULL);
   setWirelessWakeUpTime(WIRELESS_WAKE_UP_TIME_250ms);
@@ -54,7 +53,7 @@ bool message_received = false;
 bool state_sending = false;
 
 struct Message{
-  const unsigned int length = sizeof(Message);
+  const unsigned int length = sizeof(Message); // The lenght of the message, so that the receiver can determine if it is the synchronous or asynchronous examples messages automatically, since they have different lengths
   const char type[10] = "Telemetry";
   const char message_1[13] = "Hello There!";
   const char message_2[16] = "General Kenobi!";
@@ -69,7 +68,7 @@ void loop(){
 
   if(state_sending){
     writeFixedTransmission(txAddh, txAddl, txChan, (uint8_t*)&message, sizeof(message));
-    printTransmissionResult(5000);
+    printTransmissionResult(2000);
   }
 
   delay(500);

@@ -9,17 +9,6 @@ uint8_t rxtxChan = 23;
 uint8_t rxtxAddh = 0xa1;
 uint8_t rxtxAddl = 0x06;
 
-/* 
-  Found this elegant code here: https://forum.arduino.cc/t/quickly-reversing-a-byte/115529/3
-  Ended up not using it though
-*/
-uint8_t inverse_byte(uint8_t b){
-  b = ((b>>1) & 0x55) | ((b<<1) & 0xAA);
-  b = ((b>>2) & 0x33) | ((b<<2) & 0xCC);
-  b = (b>>4) | (b<<4);
-  return b;
-}
-
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(57600);
