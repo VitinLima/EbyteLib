@@ -60,7 +60,7 @@ struct Message{
   float value_1;
   float value_2;
   float value_3;
-  float value_4;
+  // float value_4;
   uint8_t bytes[N+1]; // Add array so that the message requires more than one packet to be sent
 } message;
 
@@ -97,7 +97,7 @@ void checkE32Serial(){
       Serial.print("Value 1: ");Serial.println(message.value_1);
       Serial.print("Value 2: ");Serial.println(message.value_2);
       Serial.print("Value 3: ");Serial.println(message.value_3);
-      Serial.print("Value 4: ");Serial.println(message.value_4);
+      // Serial.print("Value 4: ");Serial.println(message.value_4);
       if(message.length==108){
         for(uint8_t i = 0; i < N; i++){
           if(message.bytes[i] != 0xa1){
