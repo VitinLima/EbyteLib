@@ -259,7 +259,7 @@ void write(uint8_t byte){
 void asynchronousWrite(uint8_t* buffer, unsigned int size){
   while(asyncronousTransmissionFlag);
   if(size <= payload_max_length){ // If message is too small, simply write it
-    write(buffer, size);
+    transmitting_function(buffer, size);
   } else{ // If message is long, more packets are required, turn on asynchronous transmission
     DSerialln("Starting asynchronous transmission");
     D3Serialln("writing to fifo");
@@ -267,7 +267,7 @@ void asynchronousWrite(uint8_t* buffer, unsigned int size){
     D3Serialln("Setting async flag");
     asyncronousTransmissionFlag = true;
     D3Serialln("First transmission"); // Send first payload_max_length bytes, then the interrupts will ensure the rest is sent
-    write(buffer, payload_max_length);
+    transmitting_function(buffer, payload_max_length);
   }
 }
 
@@ -285,36 +285,26 @@ void asynchronousWrite(uint8_t* buffer, unsigned int size){
 
 void writeFixedTransmission(uint8_t ADDH, uint8_t ADDL, uint8_t CHAN, uint8_t* buffer, unsigned int size){
   while(asyncronousTransmissionFlag);
-  uint8_t transmitting_buffer[3 + size];
-  transmitting_buffer[0] = ADDH;
-  transmitting_buffer[1] = ADDL;
-  transmitting_buffer[2] = CHAN;
-  for(uint8_t i = 0; i < size; i++){
-    transmitting_buffer[i+3] = buffer[i];
-  }
-  write(transmitting_buffer, size+3);
+  FT_ADDH_ADDL_CHAN[0] = ADDH;
+  FT_ADDH_ADDL_CHAN[1] = ADDL;
+  FT_ADDH_ADDL_CHAN[2] = CHAN;
+  write(buffer, size);
 }
 
 void writeFixedTransmission(uint8_t ADDH, uint8_t ADDL, uint8_t CHAN, uint8_t byte){
   while(asyncronousTransmissionFlag);
-  uint8_t transmitting_buffer[4];
-  transmitting_buffer[0] = ADDH;
-  transmitting_buffer[1] = ADDL;
-  transmitting_buffer[2] = CHAN;
-  transmitting_buffer[3] = byte;
-  write(transmitting_buffer, 4);
+  FT_ADDH_ADDL_CHAN[0] = ADDH;
+  FT_ADDH_ADDL_CHAN[1] = ADDL;
+  FT_ADDH_ADDL_CHAN[2] = CHAN;
+  write(byte);
 }
 
 void asynchronousWriteFixedTransmission(uint8_t ADDH, uint8_t ADDL, uint8_t CHAN, uint8_t* buffer, unsigned int size){
   while(asyncronousTransmissionFlag);
-  uint8_t transmitting_buffer[3 + size];
-  transmitting_buffer[0] = ADDH;
-  transmitting_buffer[1] = ADDL;
-  transmitting_buffer[2] = CHAN;
-  for(uint8_t i = 0; i < size; i++){
-    transmitting_buffer[i+3] = buffer[i];
-  }
-  asynchronousWrite(transmitting_buffer, size+3);
+  FT_ADDH_ADDL_CHAN[0] = ADDH;
+  FT_ADDH_ADDL_CHAN[1] = ADDL;
+  FT_ADDH_ADDL_CHAN[2] = CHAN;
+  asynchronousWrite(buffer, size);
 }
 
 // void asyncronouswriteFixedTransmission(uint8_t ADDH, uint8_t ADDL, uint8_t CHAN, uint8_t byte){
@@ -361,6 +351,8 @@ bool getTransmissionResult(unsigned long int timeout){
   return false;
 }
 
-bool computeCRC(uint8_t *buffer, unsigned int size){
+bool computeCRC(uint8_t *buffer, unsigned int size){ // TODO
+  crcCode[0] = 0x00;
+  crcCode[1] = 0x00;
   return true;
 }
