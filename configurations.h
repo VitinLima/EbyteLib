@@ -46,4 +46,10 @@ void readConfiguration();
 bool setConfiguration();
 // void setConfiguration(HEAD head, uint8_t CHAN);
 
+void CRC();
+void CRC(uint8_t *_crcCode);
+void noCRC();
+
+void computePayloadMaxLength();
+
 #endif

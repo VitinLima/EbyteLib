@@ -275,6 +275,7 @@ void setChannel(uint8_t channel){
 void setTransmissionMode(FIXED_TRANSMISSION_ENABLING_BIT transmissionMode){
   configuration.parameters.OPTION.bits.FTEB = transmissionMode;
   ON_DEBUG(printTransmissionMode(););
+  computePayloadMaxLength();
 }
 
 void setIODriveMode(IO_DRIVE_MODE IODriveMode){
@@ -400,3 +401,30 @@ bool setConfiguration(){
 #define ON_DEBUG(x)
 #define Dinput(x)
 #endif
+
+void CRC(){
+  hasCRC = true;
+  computePayloadMaxLength();
+}
+
+void CRC(uint8_t *_crcCode){
+  crcCode[0] = _crcCode[0];
+  crcCode[1] = _crcCode[1];
+  hasCRC = true;
+  computePayloadMaxLength();
+}
+
+void noCRC(){
+  hasCRC = false;
+  computePayloadMaxLength();
+}
+
+void computePayloadMaxLength(){
+  payload_max_length = 58;
+  if(hasCRC){
+    payload_max_length -= 2;
+  }
+  if(configuration.parameters.OPTION.bits.FTEB==FIXED_TRANSMISSION_MODE){
+    payload_max_length -= 3;
+  }
+}

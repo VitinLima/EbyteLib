@@ -8,7 +8,11 @@ unsigned int fifo_buffer_length = 0;
 unsigned int fifo_buffer_pointer = 0;
 unsigned int write_fifo_buffer_pointer = 0;
 const unsigned int fifo_buffer_max_length = FIFO_BUFFER_MAX_LENGTH;
+unsigned int payload_max_length = 58;
 uint8_t fifo_helper_buffer[58];
+
+bool hasCRC = false;
+uint8_t crcCode[2] = {0xaa, 0x1f};
 
 // #define DBG
 #ifdef DBG
@@ -31,11 +35,11 @@ void asyncronousTransmissionCallback(){
   DSerialln("");
   unsigned int r; // Current packet size
   bool last_packet;
-  if(fifo_buffer_length <= 58){
+  if(fifo_buffer_length <= payload_max_length){
     r = fifo_buffer_length;
     last_packet = true;
   } else{
-    r = 58;
+    r = payload_max_length;
     last_packet = false;
   }
   if(fifo_buffer_pointer+r <= fifo_buffer_max_length){ // faster
@@ -75,7 +79,7 @@ void asyncronousTransmissionCallback(){
     DSerialln("Last packet");
     asyncronousTransmissionFlag = false; // all bytes transmitted, end asyncronous transmission
     DSerialln("Asynchronous transmission finished");
-  } else{ // send next 58 bytes, wait for finishing and send the rest
+  } else{ // send next payload_max_length bytes, wait for finishing and send the rest
     DSerialln("Transmitting packet");
   }
     fifo_buffer_length = 0;
@@ -165,7 +169,7 @@ void printFixedTransmission(uint8_t ADDH, uint8_t ADDL, uint8_t CHAN, const char
 void write(uint8_t* buffer, unsigned int size){
   auxHighFlag = false;
   auxLowFlag = false;
-  if(size <= 58){
+  if(size <= payload_max_length){
     writing_to_device = true;
     transmission_started = false;
     transmission_finished = false;
@@ -178,14 +182,14 @@ void write(uint8_t* buffer, unsigned int size){
     transmission_started = false;
     transmission_finished = false;
     DSerial("En écrivant: ");
-    ON_DEBUG(printHEX(buffer, 58);)
+    ON_DEBUG(printHEX(buffer, payload_max_length);)
     waitForAuxReady();
-    e32serial.write(buffer, 58);
+    e32serial.write(buffer, payload_max_length);
     unsigned int r;
-    for(int i = 58; i < size; i+=58){
+    for(int i = payload_max_length; i < size; i+=payload_max_length){
       r = size - i;
-      if(r > 58){
-        r = 58;
+      if(r > payload_max_length){
+        r = payload_max_length;
       }
       DSerialln("En attendant le début de l'émission radio");
       if(waitForTimeout(transmission_started, 50)){
@@ -225,16 +229,16 @@ void write(uint8_t byte){
 
 void asynchronousWrite(uint8_t* buffer, unsigned int size){
   while(asyncronousTransmissionFlag);
-  if(size <= 58){ // If message is too small, simply write it
+  if(size <= payload_max_length){ // If message is too small, simply write it
     write(buffer, size);
   } else{ // If message is long, more packets are required, turn on asynchronous transmission
     DSerialln("Starting asynchronous transmission");
     D3Serialln("writing to fifo");
-    write_to_fifo(&buffer[58], size-58);
+    write_to_fifo(&buffer[payload_max_length], size-payload_max_length);
     D3Serialln("Setting async flag");
     asyncronousTransmissionFlag = true;
-    D3Serialln("First transmission"); // Send first 58 bytes, then the interrupts will ensure the rest is sent
-    write(buffer, 58);
+    D3Serialln("First transmission"); // Send first payload_max_length bytes, then the interrupts will ensure the rest is sent
+    write(buffer, payload_max_length);
   }
 }
 

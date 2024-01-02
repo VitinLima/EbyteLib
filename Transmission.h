@@ -17,7 +17,11 @@ extern unsigned int fifo_buffer_length;
 extern unsigned int fifo_buffer_pointer;
 extern unsigned int write_fifo_buffer_pointer;
 extern const unsigned int fifo_buffer_max_length;
+extern unsigned int payload_max_length;
 extern uint8_t fifo_helper_buffer[58];
+
+extern bool hasCRC;
+extern uint8_t crcCode[2];
 
 void asyncronousTransmissionCallback();
 void write_to_fifo(uint8_t* buffer, unsigned int size);
