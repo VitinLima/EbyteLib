@@ -275,7 +275,12 @@ void setChannel(uint8_t channel){
 void setTransmissionMode(FIXED_TRANSMISSION_ENABLING_BIT transmissionMode){
   configuration.parameters.OPTION.bits.FTEB = transmissionMode;
   ON_DEBUG(printTransmissionMode(););
-  computePayloadMaxLength();
+  if(configuration.parameters.OPTION.bits.FTEB==FIXED_TRANSMISSION_MODE){
+    hasFixedTransmission = true;
+  } else{
+    hasFixedTransmission = false;
+  }
+  // computeTransmissionFunction();
 }
 
 void setIODriveMode(IO_DRIVE_MODE IODriveMode){
@@ -337,6 +342,12 @@ void readConfiguration(){
     }
   }
 
+  if(configuration.parameters.OPTION.bits.FTEB==FIXED_TRANSMISSION_MODE){
+    hasFixedTransmission = true;
+  } else{
+    hasFixedTransmission = false;
+  }
+  computeTransmissionFunction();
   waitForAuxReady();
   DSerial("\t");ON_DEBUG(printHEAD();)
   DSerial("\t");ON_DEBUG(printADDH();)
@@ -352,8 +363,8 @@ void readConfiguration(){
 bool setConfiguration(){
   OperationMode previousMode = getOperationMode();
   int attemps = 0;
-  bool succeeded = false;
-  while(attemps<3 && !succeeded){
+  bool hasSucceeded = false;
+  while(attemps<3 && !hasSucceeded){
     attemps++;
     // DSerialln("Setting configuration to module");
     setSleepMode();
@@ -373,7 +384,7 @@ bool setConfiguration(){
       DSerialln("");
 
       uint8_t b;
-      succeeded = true;
+      hasSucceeded = true;
       for(uint8_t i = 0; i < 6; i++){
         b = params[i];
         if(configuration.bytes[i] != b){
@@ -382,7 +393,7 @@ bool setConfiguration(){
           DSerial(configuration.bytes[i], HEX);
           DSerial(" != ");
           DSerialln(b, HEX);
-          succeeded = false;
+          hasSucceeded = false;
           break;
         }
       }
@@ -390,8 +401,9 @@ bool setConfiguration(){
     waitForAuxReady();
     // ON_DEBUG(readConfiguration(););
   }
+  computeTransmissionFunction();
   setOperationMode(previousMode);
-  return succeeded;
+  return hasSucceeded;
 }
 
 #ifdef DBG
@@ -404,27 +416,41 @@ bool setConfiguration(){
 
 void CRC(){
   hasCRC = true;
-  computePayloadMaxLength();
+  computeTransmissionFunction();
 }
 
 void CRC(uint8_t *_crcCode){
-  crcCode[0] = _crcCode[0];
-  crcCode[1] = _crcCode[1];
+  crcKey[0] = _crcCode[0];
+  crcKey[1] = _crcCode[1];
   hasCRC = true;
-  computePayloadMaxLength();
+  computeTransmissionFunction();
 }
 
 void noCRC(){
   hasCRC = false;
-  computePayloadMaxLength();
+  computeTransmissionFunction();
 }
 
-void computePayloadMaxLength(){
+void computeTransmissionFunction(){
   payload_max_length = 58;
   if(hasCRC){
     payload_max_length -= 2;
   }
-  if(configuration.parameters.OPTION.bits.FTEB==FIXED_TRANSMISSION_MODE){
+  if(hasFixedTransmission){
     payload_max_length -= 3;
+  }
+  switch(payload_max_length){
+    case 58:
+      transmitting_function = transmit;
+      break;
+    case 56:
+      transmitting_function = transmitCRC;
+      break;
+    case 55:
+      transmitting_function = FTtransmit;
+      break;
+    case 53:
+      transmitting_function = FTtransmitCRC;
+      break;
   }
 }

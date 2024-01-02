@@ -50,6 +50,6 @@ void CRC();
 void CRC(uint8_t *_crcCode);
 void noCRC();
 
-void computePayloadMaxLength();
+void computeTransmissionFunction();
 
 #endif

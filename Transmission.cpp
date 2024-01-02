@@ -12,7 +12,13 @@ unsigned int payload_max_length = 58;
 uint8_t fifo_helper_buffer[58];
 
 bool hasCRC = false;
-uint8_t crcCode[2] = {0xaa, 0x1f};
+uint8_t crcKey[2] = {0xaa, 0x1f};
+uint8_t crcCode[2];
+
+bool hasFixedTransmission = false;
+uint8_t FT_ADDH_ADDL_CHAN[3];
+
+void (*transmitting_function)(uint8_t *buffer, unsigned int size) = transmit;
 
 // #define DBG
 #ifdef DBG
@@ -175,16 +181,14 @@ void write(uint8_t* buffer, unsigned int size){
     transmission_finished = false;
     DSerial("En écrivant: ");
     ON_DEBUG(printHEX(buffer, size);)
-    waitForAuxReady();
-    e32serial.write(buffer, size);
+    transmitting_function(buffer, size);
   } else{
     writing_to_device = true;
     transmission_started = false;
     transmission_finished = false;
     DSerial("En écrivant: ");
     ON_DEBUG(printHEX(buffer, payload_max_length);)
-    waitForAuxReady();
-    e32serial.write(buffer, payload_max_length);
+    transmitting_function(buffer, payload_max_length);
     unsigned int r;
     for(int i = payload_max_length; i < size; i+=payload_max_length){
       r = size - i;
@@ -204,10 +208,35 @@ void write(uint8_t* buffer, unsigned int size){
       transmission_finished = false;
       DSerial("En écrivant: ");
       ON_DEBUG(printHEX(&(buffer[i]), r);)
-      waitForAuxReady();
-      e32serial.write(&(buffer[i]), r);
+      transmitting_function(&(buffer[i]), r);
     }
   }
+}
+
+void transmit(uint8_t *buffer, unsigned int size){
+  waitForAuxReady();
+  e32serial.write(buffer, size);
+}
+
+void FTtransmit(uint8_t *buffer, unsigned int size){
+  waitForAuxReady();
+  e32serial.write(FT_ADDH_ADDL_CHAN, 3);
+  e32serial.write(buffer, size);
+}
+
+void transmitCRC(uint8_t *buffer, unsigned int size){
+  computeCRC(buffer, size);
+  waitForAuxReady();
+  e32serial.write(buffer, size);
+  e32serial.write(crcCode, 2);
+}
+
+void FTtransmitCRC(uint8_t *buffer, unsigned int size){
+  computeCRC(buffer, size);
+  waitForAuxReady();
+  e32serial.write(FT_ADDH_ADDL_CHAN, 3);
+  e32serial.write(buffer, size);
+  e32serial.write(crcCode, 2);
 }
 
 #ifdef DBG
@@ -330,4 +359,8 @@ bool getTransmissionResult(unsigned long int timeout){
     }
   }
   return false;
+}
+
+bool computeCRC(uint8_t *buffer, unsigned int size){
+  return true;
 }
