@@ -453,6 +453,4 @@ void computeTransmissionFunction(){
       transmitting_function = FTtransmitCRC;
       break;
   }
-  Serial.print("Payload max length ");
-  Serial.println(payload_max_length);
 }

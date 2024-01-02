@@ -22,7 +22,7 @@ unsigned int packet_index;
 
 void (*transmitting_function)(uint8_t *buffer, unsigned int size) = transmit;
 
-#define DBG
+// #define DBG
 #ifdef DBG
 #define DSerial(...) GET_MACRO(__VA_ARGS__, DSerial2, DSerial1)(__VA_ARGS__)
 #define DSerialln(...) GET_MACRO(__VA_ARGS__, DSerialln2, DSerialln1)(__VA_ARGS__)
@@ -221,7 +221,7 @@ void write(uint8_t* buffer, unsigned int size){
 #define Dinput(x)
 #endif
 
-#define DBG
+// #define DBG
 #ifdef DBG
 #define DSerial(...) GET_MACRO(__VA_ARGS__, DSerial2, DSerial1)(__VA_ARGS__)
 #define DSerialln(...) GET_MACRO(__VA_ARGS__, DSerialln2, DSerialln1)(__VA_ARGS__)
