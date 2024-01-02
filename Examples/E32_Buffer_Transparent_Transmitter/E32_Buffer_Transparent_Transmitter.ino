@@ -16,7 +16,7 @@ void setup() {
   // put your setup code here, to run once:
   Serial.begin(57600);
 
-  Serial.println("Testing e32serial asynchronous transparent transmitter");
+  Serial.println("Testing e32serial buffer transparent transmitter");
 
   initE32();
   Serial.println("Device initiated successfully");

@@ -58,7 +58,7 @@ struct Message{
   float value_1 = 0.1;
   float value_2 = 0.2;
   float value_3 = 0.3;
-  // float value_4 = 0.4;
+  float value_4 = 0.4;
 } message; // sending a struct with multiple fields
 
 void loop() {

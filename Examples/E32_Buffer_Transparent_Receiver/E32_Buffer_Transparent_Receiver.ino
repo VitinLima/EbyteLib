@@ -13,7 +13,7 @@ void setup() {
   // put your setup code here, to run once:
   Serial.begin(57600);
 
-  Serial.println("Testing e32serial transparent receiver");
+  Serial.println("Testing e32serial buffer transparent receiver");
 
   initE32();
   Serial.println("Device initiated successfully");

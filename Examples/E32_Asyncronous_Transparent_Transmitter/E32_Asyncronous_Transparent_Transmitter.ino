@@ -18,7 +18,7 @@ struct Message{
   float value_1 = 0.1;
   float value_2 = 0.2;
   float value_3 = 0.3;
-  // float value_4 = 0.4;
+  float value_4 = 0.4;
   uint8_t bytes[N+1]; // Add array so that the message requires more than one packet to be sent
 } message; // sending a struct with multiple fields
 

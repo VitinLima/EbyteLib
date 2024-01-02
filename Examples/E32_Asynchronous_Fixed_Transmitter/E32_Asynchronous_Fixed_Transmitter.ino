@@ -21,7 +21,7 @@ struct Message{
   float value_1 = 0.1;
   float value_2 = 0.2;
   float value_3 = 0.3;
-  // float value_4 = 0.4;
+  float value_4 = 0.4;
   uint8_t bytes[N+1]; // Add array so that the message requires more than one packet to be sent
 } message; // sending a struct with multiple fields
 
@@ -38,8 +38,8 @@ void setup(){
   setADDL(rxAddl);
   setChannel(rxChan);
   setParity(UART_PARITY_BIT_8N1);
-  setBaudRate(TTL_UART_baud_rate_2400);
-  setAirDataRate(Air_Data_Rate_9600);
+  setBaudRate(TTL_UART_baud_rate_9600);
+  setAirDataRate(Air_Data_Rate_2400);
   setTransmissionMode(FIXED_TRANSMISSION_MODE);
   setIODriveMode(IO_DRIVE_MODE_PUSH_PULL);
   setWirelessWakeUpTime(WIRELESS_WAKE_UP_TIME_250ms);

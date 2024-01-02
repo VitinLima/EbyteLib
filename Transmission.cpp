@@ -18,9 +18,11 @@ uint8_t crcCode[2];
 bool hasFixedTransmission = false;
 uint8_t FT_ADDH_ADDL_CHAN[3];
 
+unsigned int packet_index;
+
 void (*transmitting_function)(uint8_t *buffer, unsigned int size) = transmit;
 
-// #define DBG
+#define DBG
 #ifdef DBG
 #define DSerial(...) GET_MACRO(__VA_ARGS__, DSerial2, DSerial1)(__VA_ARGS__)
 #define DSerialln(...) GET_MACRO(__VA_ARGS__, DSerialln2, DSerialln1)(__VA_ARGS__)
@@ -179,15 +181,13 @@ void write(uint8_t* buffer, unsigned int size){
     writing_to_device = true;
     transmission_started = false;
     transmission_finished = false;
-    DSerial("En écrivant: ");
-    ON_DEBUG(printHEX(buffer, size);)
     transmitting_function(buffer, size);
   } else{
     writing_to_device = true;
     transmission_started = false;
     transmission_finished = false;
-    DSerial("En écrivant: ");
-    ON_DEBUG(printHEX(buffer, payload_max_length);)
+    // DSerial("En écrivant: ");
+    // ON_DEBUG(printHEX(buffer, payload_max_length);)
     transmitting_function(buffer, payload_max_length);
     unsigned int r;
     for(int i = payload_max_length; i < size; i+=payload_max_length){
@@ -196,35 +196,65 @@ void write(uint8_t* buffer, unsigned int size){
         r = payload_max_length;
       }
       DSerialln("En attendant le début de l'émission radio");
-      if(waitForTimeout(transmission_started, 50)){
-        DSerial("Cela prend trop de temp pour démarrer le streaming");
+      if(!waitForTimeout(&transmission_started, 50)){
+        DSerialln("Cela prend trop de temp pour démarrer le streaming");
       }
       DSerialln("En attendant le fin de l'émission radio");
-      if(!waitForTimeout(transmission_finished, 50)){
-        DSerial("Cela prend trop de temp pour terminer le streaming");
+      if(!waitForTimeout(&transmission_finished, 20 + r/getAirDataRate())){
+        DSerialln("Cela prend trop de temp pour terminer le streaming");
       }
       writing_to_device = true;
       transmission_started = false;
       transmission_finished = false;
-      DSerial("En écrivant: ");
-      ON_DEBUG(printHEX(&(buffer[i]), r);)
+      // DSerial("En écrivant: ");
+      // ON_DEBUG(printHEX(&(buffer[i]), r);)
       transmitting_function(&(buffer[i]), r);
     }
   }
 }
 
+#ifdef DBG
+#undef DBG
+#define DSerial(...)
+#define DSerialln(...)
+#define ON_DEBUG(x)
+#define Dinput(x)
+#endif
+
+#define DBG
+#ifdef DBG
+#define DSerial(...) GET_MACRO(__VA_ARGS__, DSerial2, DSerial1)(__VA_ARGS__)
+#define DSerialln(...) GET_MACRO(__VA_ARGS__, DSerialln2, DSerialln1)(__VA_ARGS__)
+#define ON_DEBUG(x) {x};
+#define Dinput(x) {input(x);}
+#else
+#define DSerial(...)
+#define DSerialln(...)
+#define ON_DEBUG(x)
+#define Dinput(x)
+#endif
+
 void transmit(uint8_t *buffer, unsigned int size){
+  DSerial("En écrivant: ");
+  ON_DEBUG(printHEX(buffer, size);)
   waitForAuxReady();
   e32serial.write(buffer, size);
 }
 
 void FTtransmit(uint8_t *buffer, unsigned int size){
+  DSerial("FT En écrivant: ");
+  ON_DEBUG(printHEX(FT_ADDH_ADDL_CHAN, 3);)
+  ON_DEBUG(printHEX(buffer, size);)
+  DSerialln(size);
   waitForAuxReady();
   e32serial.write(FT_ADDH_ADDL_CHAN, 3);
   e32serial.write(buffer, size);
 }
 
 void transmitCRC(uint8_t *buffer, unsigned int size){
+  DSerial("CRC En écrivant: ");
+  ON_DEBUG(printHEX(buffer, size);)
+  ON_DEBUG(printHEX(crcCode, 2);)
   computeCRC(buffer, size);
   waitForAuxReady();
   e32serial.write(buffer, size);
@@ -232,6 +262,10 @@ void transmitCRC(uint8_t *buffer, unsigned int size){
 }
 
 void FTtransmitCRC(uint8_t *buffer, unsigned int size){
+  DSerial("FT-CRC En écrivant: ");
+  ON_DEBUG(printHEX(FT_ADDH_ADDL_CHAN, 3);)
+  ON_DEBUG(printHEX(buffer, size);)
+  ON_DEBUG(printHEX(crcCode, 2);)
   computeCRC(buffer, size);
   waitForAuxReady();
   e32serial.write(FT_ADDH_ADDL_CHAN, 3);
@@ -247,14 +281,14 @@ void FTtransmitCRC(uint8_t *buffer, unsigned int size){
 #define Dinput(x)
 #endif
 
-void write(uint8_t byte){
-  while(asyncronousTransmissionFlag);
-  auxHighFlag = false;
-  auxLowFlag = false;
-  waitForAuxReady();
-  e32serial.write(byte);
-  waitForAuxReady();
-}
+// void write(uint8_t byte){
+//   while(asyncronousTransmissionFlag);
+//   auxHighFlag = false;
+//   auxLowFlag = false;
+//   waitForAuxReady();
+//   e32serial.write(byte);
+//   waitForAuxReady();
+// }
 
 void asynchronousWrite(uint8_t* buffer, unsigned int size){
   while(asyncronousTransmissionFlag);
@@ -283,13 +317,13 @@ void asynchronousWrite(uint8_t* buffer, unsigned int size){
 //   write(byte);
 // }
 
-void writeFixedTransmission(uint8_t ADDH, uint8_t ADDL, uint8_t CHAN, uint8_t* buffer, unsigned int size){
-  while(asyncronousTransmissionFlag);
-  FT_ADDH_ADDL_CHAN[0] = ADDH;
-  FT_ADDH_ADDL_CHAN[1] = ADDL;
-  FT_ADDH_ADDL_CHAN[2] = CHAN;
-  write(buffer, size);
-}
+// void writeFixedTransmission(uint8_t ADDH, uint8_t ADDL, uint8_t CHAN, uint8_t* buffer, unsigned int size){
+//   while(asyncronousTransmissionFlag);
+//   FT_ADDH_ADDL_CHAN[0] = ADDH;
+//   FT_ADDH_ADDL_CHAN[1] = ADDL;
+//   FT_ADDH_ADDL_CHAN[2] = CHAN;
+//   write(buffer, size);
+// }
 
 void writeFixedTransmission(uint8_t ADDH, uint8_t ADDL, uint8_t CHAN, uint8_t byte){
   while(asyncronousTransmissionFlag);

@@ -330,7 +330,7 @@ void readConfiguration(){
   waitForAuxReady();
 
   uint8_t buffer[] = {0xC1, 0xC1, 0xC1};
-  write(buffer, 3);
+  transmit(buffer, 3);
 
   int counter = 0;
   DSerialln("Waiting for response");
@@ -371,7 +371,7 @@ bool setConfiguration(){
     flush();
 
     // Dinput("Enter to send configuration bytes");
-    write(configuration.bytes, 6);
+    transmit(configuration.bytes, 6);
     DSerial("\t");
     ON_DEBUG(for(int i = 0; i < 6; i++){Serial.print(configuration.bytes[i], HEX);Serial.print(" ");})
     DSerialln("");
@@ -453,4 +453,6 @@ void computeTransmissionFunction(){
       transmitting_function = FTtransmitCRC;
       break;
   }
+  Serial.print("Payload max length ");
+  Serial.println(payload_max_length);
 }
