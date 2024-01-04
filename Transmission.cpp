@@ -178,14 +178,8 @@ void write(uint8_t* buffer, unsigned int size){
   auxHighFlag = false;
   auxLowFlag = false;
   if(size <= payload_max_length){
-    writing_to_device = true;
-    transmission_started = false;
-    transmission_finished = false;
     transmitting_function(buffer, size);
   } else{
-    writing_to_device = true;
-    transmission_started = false;
-    transmission_finished = false;
     // DSerial("En écrivant: ");
     // ON_DEBUG(printHEX(buffer, payload_max_length);)
     transmitting_function(buffer, payload_max_length);
@@ -203,9 +197,6 @@ void write(uint8_t* buffer, unsigned int size){
       if(!waitForTimeout(&transmission_finished, 20 + r/getAirDataRate())){
         DSerialln("Cela prend trop de temp pour terminer le streaming");
       }
-      writing_to_device = true;
-      transmission_started = false;
-      transmission_finished = false;
       // DSerial("En écrivant: ");
       // ON_DEBUG(printHEX(&(buffer[i]), r);)
       transmitting_function(&(buffer[i]), r);
@@ -235,6 +226,9 @@ void write(uint8_t* buffer, unsigned int size){
 #endif
 
 void transmit(uint8_t *buffer, unsigned int size){
+  writing_to_device = true;
+  transmission_started = false;
+  transmission_finished = false;
   DSerial("En écrivant: ");
   ON_DEBUG(printHEX(buffer, size);)
   waitForAuxReady();
@@ -242,6 +236,9 @@ void transmit(uint8_t *buffer, unsigned int size){
 }
 
 void FTtransmit(uint8_t *buffer, unsigned int size){
+  writing_to_device = true;
+  transmission_started = false;
+  transmission_finished = false;
   DSerial("FT En écrivant: ");
   ON_DEBUG(printHEX(FT_ADDH_ADDL_CHAN, 3);)
   ON_DEBUG(printHEX(buffer, size);)
@@ -252,6 +249,9 @@ void FTtransmit(uint8_t *buffer, unsigned int size){
 }
 
 void transmitCRC(uint8_t *buffer, unsigned int size){
+  writing_to_device = true;
+  transmission_started = false;
+  transmission_finished = false;
   DSerial("CRC En écrivant: ");
   ON_DEBUG(printHEX(buffer, size);)
   ON_DEBUG(printHEX(crcCode, 2);)
@@ -262,6 +262,9 @@ void transmitCRC(uint8_t *buffer, unsigned int size){
 }
 
 void FTtransmitCRC(uint8_t *buffer, unsigned int size){
+  writing_to_device = true;
+  transmission_started = false;
+  transmission_finished = false;
   DSerial("FT-CRC En écrivant: ");
   ON_DEBUG(printHEX(FT_ADDH_ADDL_CHAN, 3);)
   ON_DEBUG(printHEX(buffer, size);)
@@ -317,21 +320,21 @@ void asynchronousWrite(uint8_t* buffer, unsigned int size){
 //   write(byte);
 // }
 
-// void writeFixedTransmission(uint8_t ADDH, uint8_t ADDL, uint8_t CHAN, uint8_t* buffer, unsigned int size){
-//   while(asyncronousTransmissionFlag);
-//   FT_ADDH_ADDL_CHAN[0] = ADDH;
-//   FT_ADDH_ADDL_CHAN[1] = ADDL;
-//   FT_ADDH_ADDL_CHAN[2] = CHAN;
-//   write(buffer, size);
-// }
-
-void writeFixedTransmission(uint8_t ADDH, uint8_t ADDL, uint8_t CHAN, uint8_t byte){
+void writeFixedTransmission(uint8_t ADDH, uint8_t ADDL, uint8_t CHAN, uint8_t* buffer, unsigned int size){
   while(asyncronousTransmissionFlag);
   FT_ADDH_ADDL_CHAN[0] = ADDH;
   FT_ADDH_ADDL_CHAN[1] = ADDL;
   FT_ADDH_ADDL_CHAN[2] = CHAN;
-  write(byte);
+  write(buffer, size);
 }
+
+// void writeFixedTransmission(uint8_t ADDH, uint8_t ADDL, uint8_t CHAN, uint8_t byte){
+//   while(asyncronousTransmissionFlag);
+//   FT_ADDH_ADDL_CHAN[0] = ADDH;
+//   FT_ADDH_ADDL_CHAN[1] = ADDL;
+//   FT_ADDH_ADDL_CHAN[2] = CHAN;
+//   write(byte);
+// }
 
 void asynchronousWriteFixedTransmission(uint8_t ADDH, uint8_t ADDL, uint8_t CHAN, uint8_t* buffer, unsigned int size){
   while(asyncronousTransmissionFlag);
@@ -378,7 +381,7 @@ bool read(uint8_t* buffer, unsigned int size, unsigned long int timeout){
 bool getTransmissionResult(unsigned long int timeout){
   long unsigned int timeout_limit = millis() + timeout;
   while(millis() < timeout_limit){
-    if(transmission_started && transmission_finished  && !asyncronousTransmissionFlag){
+    if(transmission_started && transmission_finished && !asyncronousTransmissionFlag){
       return true;
     }
   }

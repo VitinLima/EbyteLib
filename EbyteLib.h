@@ -13,6 +13,12 @@ extern bool writing_to_device;
 extern bool transmission_started;
 extern bool transmission_finished;
 
+extern bool reception_started;
+extern bool reception_finished;
+
+extern void (*receiveCallback)();
+void defaultReceiveCallback();
+
 class EByte32LoRa{
     public:
 

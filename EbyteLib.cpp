@@ -6,6 +6,14 @@ extern bool writing_to_device = false;
 bool transmission_finished = false;
 bool transmission_started = false;
 
+bool reception_started = false;
+bool reception_finished = false;
+
+void (*receiveCallback)() = defaultReceiveCallback;
+void defaultReceiveCallback(){
+
+}
+
 void waitForAuxReady(){
   DSerial("Waiting for aux ready");
   while(!digitalRead(AUX));
@@ -83,8 +91,9 @@ void auxRisingISR(){
       } else if(transmission_started){
         DSerialln("Transmission finished");
         transmission_finished = true;
-      } else{
-
+      } else if(reception_started){
+        reception_finished = true;
+        receiveCallback();
       }
       break;
     case SLEEP:
@@ -101,6 +110,8 @@ void auxFallingISR(){
         DSerialln("Transmission started");
         transmission_started = true;
         writing_to_device = false;
+      } else{
+        reception_started = true;
       }
       break;
     case SLEEP:
