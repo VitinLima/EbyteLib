@@ -394,3 +394,7 @@ bool computeCRC(uint8_t *buffer, unsigned int size){ // TODO
   crcCode[1] = 0x00;
   return true;
 }
+
+unsigned long int estimateTimeOfTransmission(unsigned long int size){
+  return size / getAirDataRate();
+}

@@ -55,4 +55,6 @@ bool getTransmissionResult(unsigned long int timeout);
 
 bool computeCRC(uint8_t *buffer, unsigned int size);
 
+unsigned long int estimateTimeOfTransmission(unsigned long int size);
+
 #endif
