@@ -22,7 +22,7 @@ unsigned int packet_index;
 
 void (*transmitting_function)(uint8_t *buffer, unsigned int size) = transmit;
 
-// #define DBG
+#define DBG
 #ifdef DBG
 #define DSerial(...) GET_MACRO(__VA_ARGS__, DSerial2, DSerial1)(__VA_ARGS__)
 #define DSerialln(...) GET_MACRO(__VA_ARGS__, DSerialln2, DSerialln1)(__VA_ARGS__)
@@ -83,6 +83,7 @@ void asyncronousTransmissionCallback(){
     }
   }
   write(transmitting_buffer, r);
+  fifo_buffer_length -= r;
   if(last_packet){ // can send all remaining bytes together
     DSerialln("Last packet");
     asyncronousTransmissionFlag = false; // all bytes transmitted, end asyncronous transmission
@@ -90,7 +91,6 @@ void asyncronousTransmissionCallback(){
   } else{ // send next payload_max_length bytes, wait for finishing and send the rest
     DSerialln("Transmitting packet");
   }
-    fifo_buffer_length = 0;
   if(fifo_buffer_pointer==fifo_buffer_max_length){
     fifo_buffer_pointer = 0;
   }
@@ -212,7 +212,7 @@ void write(uint8_t* buffer, unsigned int size){
 #define Dinput(x)
 #endif
 
-// #define DBG
+#define DBG
 #ifdef DBG
 #define DSerial(...) GET_MACRO(__VA_ARGS__, DSerial2, DSerial1)(__VA_ARGS__)
 #define DSerialln(...) GET_MACRO(__VA_ARGS__, DSerialln2, DSerialln1)(__VA_ARGS__)
@@ -299,11 +299,12 @@ void asynchronousWrite(uint8_t* buffer, unsigned int size){
     transmitting_function(buffer, size);
   } else{ // If message is long, more packets are required, turn on asynchronous transmission
     DSerialln("Starting asynchronous transmission");
-    D3Serialln("writing to fifo");
+    DSerialln("writing to fifo");
+    DSerialln(size-payload_max_length);
     write_to_fifo(&buffer[payload_max_length], size-payload_max_length);
-    D3Serialln("Setting async flag");
+    DSerialln("Setting async flag");
     asyncronousTransmissionFlag = true;
-    D3Serialln("First transmission"); // Send first payload_max_length bytes, then the interrupts will ensure the rest is sent
+    DSerialln("First transmission"); // Send first payload_max_length bytes, then the interrupts will ensure the rest is sent
     transmitting_function(buffer, payload_max_length);
   }
 }
