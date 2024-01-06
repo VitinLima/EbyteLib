@@ -19,12 +19,14 @@ uint8_t getADDH();
 uint8_t getADDL();
 long unsigned int getBaudRate();
 unsigned int getAirDataRate();
+UART_PARITY_BIT getParity();
 uint8_t getChannel();
 FIXED_TRANSMISSION_ENABLING_BIT getTransmissionMode();
 IO_DRIVE_MODE getIODriveMode();
 WIRELESS_WAKE_UP_TIME getWirelessWakeUpTime();
 FEC_SWITCH getFECSwitch();
 TRANSMISSION_POWER getTransmissionPower();
+OperationMode getOperationMode();
 
 void setHEAD(HEAD head);
 void setADDH(uint8_t addh);

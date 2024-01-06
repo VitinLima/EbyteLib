@@ -153,8 +153,8 @@ void parseMessage(String received_message){
         DSerial("ADDL changed to "); DSerialln(s);
         setADDL(s.toInt());
         break;
-      default:
-        s = received_message.substring(0);
+      case 'C':
+        s = received_message.substring(1);
         DSerial("Channel changed to ");
         DSerialln(s);
         setChannel(s.toInt());
@@ -162,7 +162,7 @@ void parseMessage(String received_message){
     }
   }
   setConfiguration();
-  setNormalMode();
+  // setNormalMode();
 }
 
 #ifdef DBG
@@ -174,15 +174,15 @@ void parseMessage(String received_message){
 #endif
 
 void printConfiguration(){
-  Serial.print("\t");printHEAD();
-  Serial.print("\t");printADDH();
-  Serial.print("\t");printADDL();
-  Serial.print("\t");printParity();
-  Serial.print("\t");printBaudRate();
-  Serial.print("\t");printAirDataRate();
-  Serial.print("\t");printChannel();
-  Serial.print("\t");printTransmissionMode();
-  Serial.print("\t");printTransmissionPower();
+  printHEAD();
+  printADDH();
+  printADDL();
+  printParity();
+  printBaudRate();
+  printAirDataRate();
+  printChannel();
+  printTransmissionMode();
+  printTransmissionPower();
 }
 
 void getVersionInformation(){
@@ -237,7 +237,6 @@ bool waitForTimeout(bool *foo, unsigned long int timeout){
 void printVersionInformation(){
   Serial.print("Module version information: ");
 
-  Serial.print("\t");
   Serial.print(ver[0], HEX);
   Serial.print(" ");
   Serial.print(ver[1], HEX);

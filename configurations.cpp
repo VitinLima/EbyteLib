@@ -18,32 +18,36 @@ uint8_t getADDL(){
   return configuration.parameters.ADDL;
 }
 
+UART_PARITY_BIT getParity(){
+  return (UART_PARITY_BIT)configuration.parameters.SPED.bits.UART_parity_bit;
+}
+
 long unsigned int getBaudRate(){
   long unsigned int baudRate;
   // uint8_t b = ;//(param[2]&0x38)>>3
   switch(configuration.parameters.SPED.bits.TTL_UART_baud_rate){
-    case TTL_UART_baud_rate_1200:
+    case TTL_UART_BAUD_RATE_1200:
       baudRate = 1200;
       break;
-    case TTL_UART_baud_rate_2400:
+    case TTL_UART_BAUD_RATE_2400:
       baudRate = 2400;
       break;
-    case TTL_UART_baud_rate_4800:
+    case TTL_UART_BAUD_RATE_4800:
       baudRate = 4800;
       break;
-    case TTL_UART_baud_rate_9600:
+    case TTL_UART_BAUD_RATE_9600:
       baudRate = 9600;
       break;
-    case TTL_UART_baud_rate_19200:
+    case TTL_UART_BAUD_RATE_19200:
       baudRate = 19200;
       break;
-    case TTL_UART_baud_rate_38400:
+    case TTL_UART_BAUD_RATE_38400:
       baudRate = 38400;
       break;
-    case TTL_UART_baud_rate_57600:
+    case TTL_UART_BAUD_RATE_57600:
       baudRate = 57600;
       break;
-    case TTL_UART_baud_rate_115200:
+    case TTL_UART_BAUD_RATE_115200:
       baudRate = 115200;
       break;
   }
@@ -54,22 +58,22 @@ unsigned int getAirDataRate(){
   int airDataRate;
   // (param[2]&0x07)
   switch(configuration.parameters.SPED.bits.Air_data_rate){
-    case Air_Data_Rate_300:
+    case AIR_DATA_RATE_300:
       airDataRate = 300;
       break;
-    case Air_Data_Rate_1200:
+    case AIR_DATA_RATE_1200:
       airDataRate = 1200;
       break;
-    case Air_Data_Rate_2400:
+    case AIR_DATA_RATE_2400:
       airDataRate = 2400;
       break;
-    case Air_Data_Rate_4800:
+    case AIR_DATA_RATE_4800:
       airDataRate = 4800;
       break;
-    case Air_Data_Rate_9600:
+    case AIR_DATA_RATE_9600:
       airDataRate = 9600;
       break;
-    case Air_Data_Rate_19200:
+    case AIR_DATA_RATE_19200:
       airDataRate = 19200;
       break;
     default:
@@ -170,6 +174,10 @@ TRANSMISSION_POWER getTransmissionPower(){
   }
 }
 
+OperationMode getOperationMode(){
+  return current_operation_mode;
+}
+
 // #define DBG
 #ifdef DBG
 #define DSerial(...) GET_MACRO(__VA_ARGS__, DSerial2, DSerial1)(__VA_ARGS__)
@@ -211,28 +219,28 @@ void setBaudRate(TTL_UART_BAUD_RATE baudRate){
 void setBaudRate(unsigned long baudRate){
   switch(baudRate){
     case 1200:
-      configuration.parameters.SPED.bits.TTL_UART_baud_rate = TTL_UART_baud_rate_1200;
+      configuration.parameters.SPED.bits.TTL_UART_baud_rate = TTL_UART_BAUD_RATE_1200;
       break;
     case 2400:
-      configuration.parameters.SPED.bits.TTL_UART_baud_rate = TTL_UART_baud_rate_2400;
+      configuration.parameters.SPED.bits.TTL_UART_baud_rate = TTL_UART_BAUD_RATE_2400;
       break;
     case 4800:
-      configuration.parameters.SPED.bits.TTL_UART_baud_rate = TTL_UART_baud_rate_4800;
+      configuration.parameters.SPED.bits.TTL_UART_baud_rate = TTL_UART_BAUD_RATE_4800;
       break;
     case 9600:
-      configuration.parameters.SPED.bits.TTL_UART_baud_rate = TTL_UART_baud_rate_9600;
+      configuration.parameters.SPED.bits.TTL_UART_baud_rate = TTL_UART_BAUD_RATE_9600;
       break;
     case 19200:
-      configuration.parameters.SPED.bits.TTL_UART_baud_rate = TTL_UART_baud_rate_19200;
+      configuration.parameters.SPED.bits.TTL_UART_baud_rate = TTL_UART_BAUD_RATE_19200;
       break;
     case 38400:
-      configuration.parameters.SPED.bits.TTL_UART_baud_rate = TTL_UART_baud_rate_38400;
+      configuration.parameters.SPED.bits.TTL_UART_baud_rate = TTL_UART_BAUD_RATE_38400;
       break;
     case 57600:
-      configuration.parameters.SPED.bits.TTL_UART_baud_rate = TTL_UART_baud_rate_57600;
+      configuration.parameters.SPED.bits.TTL_UART_baud_rate = TTL_UART_BAUD_RATE_57600;
       break;
     case 115200:
-      configuration.parameters.SPED.bits.TTL_UART_baud_rate = TTL_UART_baud_rate_115200;
+      configuration.parameters.SPED.bits.TTL_UART_baud_rate = TTL_UART_BAUD_RATE_115200;
       break;
   }
   ON_DEBUG(printBaudRate(););
@@ -246,22 +254,22 @@ void setAirDataRate(AIR_DATA_RATE airDataRate){
 void setAirDataRate(unsigned long airDataRate){
   switch(airDataRate){
     case 300:
-      configuration.parameters.SPED.bits.Air_data_rate = Air_Data_Rate_300;
+      configuration.parameters.SPED.bits.Air_data_rate = AIR_DATA_RATE_300;
       break;
     case 1200:
-      configuration.parameters.SPED.bits.Air_data_rate = Air_Data_Rate_1200;
+      configuration.parameters.SPED.bits.Air_data_rate = AIR_DATA_RATE_1200;
       break;
     case 2400:
-      configuration.parameters.SPED.bits.Air_data_rate = Air_Data_Rate_2400;
+      configuration.parameters.SPED.bits.Air_data_rate = AIR_DATA_RATE_2400;
       break;
     case 4800:
-      configuration.parameters.SPED.bits.Air_data_rate = Air_Data_Rate_4800;
+      configuration.parameters.SPED.bits.Air_data_rate = AIR_DATA_RATE_4800;
       break;
     case 9600:
-      configuration.parameters.SPED.bits.Air_data_rate = Air_Data_Rate_9600;
+      configuration.parameters.SPED.bits.Air_data_rate = AIR_DATA_RATE_9600;
       break;
     case 19200:
-      configuration.parameters.SPED.bits.Air_data_rate = Air_Data_Rate_19200;
+      configuration.parameters.SPED.bits.Air_data_rate = AIR_DATA_RATE_19200;
       break;
   }
   ON_DEBUG(printAirDataRate(););
