@@ -174,9 +174,9 @@ TRANSMISSION_POWER getTransmissionPower(){
   }
 }
 
-OperationMode getOperationMode(){
-  return current_operation_mode;
-}
+// OperationMode getOperationMode(){
+//   return current_operation_mode;
+// }
 
 // #define DBG
 #ifdef DBG

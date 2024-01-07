@@ -26,7 +26,7 @@ IO_DRIVE_MODE getIODriveMode();
 WIRELESS_WAKE_UP_TIME getWirelessWakeUpTime();
 FEC_SWITCH getFECSwitch();
 TRANSMISSION_POWER getTransmissionPower();
-OperationMode getOperationMode();
+// OperationMode getOperationMode();
 
 void setHEAD(HEAD head);
 void setADDH(uint8_t addh);
