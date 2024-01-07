@@ -106,64 +106,64 @@ void printTransmissionPower(){
 #define Dinput(x)
 #endif
 
-void parseMessage(String received_message){
-  String s = "";
-  if(received_message.length() > 0){
-    switch(received_message[0]){
-      case 'P':
-        if(received_message.length() == 2){
-          switch(received_message[1]){
-            case 'N':
-              DSerialln("Paritiy changed to 8N1");
-              setParity(UART_PARITY_BIT_8N1);
-              break;
-            case 'E':
-              DSerialln("Parity changed to 8E1");
-              setParity(UART_PARITY_BIT_8E1);
-              break;
-            case 'O':
-              DSerialln("Parity changed to 8o1");
-              setParity(UART_PARITY_BIT_8o1);
-              break;
-          }
-        }
-        break;
-      case 'B':
-        s = received_message.substring(1);
-        DSerial("UART baud rate changed to "); DSerialln(s.toInt());
-        setBaudRate(s.toInt());
-        break;
-      case 'A':
-        s = received_message.substring(1);
-        DSerial("Air data rate changed to "); DSerialln(s.toInt());
-        setAirDataRate(s.toInt());
-        break;
-      case 'T':
-        s = received_message.substring(1);
-        DSerial("Transmission power changed to "); DSerialln(s.toInt());
-        setTransmissionPower(s.toInt());
-        break;
-      case 'H':
-        s = received_message.substring(1);
-        DSerial("ADDH changed to "); DSerialln(s);
-        setADDH(s.toInt());
-        break;
-      case 'L':
-        s = received_message.substring(1);
-        DSerial("ADDL changed to "); DSerialln(s);
-        setADDL(s.toInt());
-        break;
-      case 'C':
-        s = received_message.substring(1);
-        DSerial("Channel changed to ");
-        DSerialln(s);
-        setChannel(s.toInt());
-        break;
-    }
-  }
-  setConfiguration();
-  // setNormalMode();
-}
+// void parseMessage(String received_message){
+//   String s = "";
+//   if(received_message.length() > 0){
+//     switch(received_message[0]){
+//       case 'P':
+//         if(received_message.length() == 2){
+//           switch(received_message[1]){
+//             case 'N':
+//               DSerialln("Paritiy changed to 8N1");
+//               setParity(UART_PARITY_BIT_8N1);
+//               break;
+//             case 'E':
+//               DSerialln("Parity changed to 8E1");
+//               setParity(UART_PARITY_BIT_8E1);
+//               break;
+//             case 'O':
+//               DSerialln("Parity changed to 8o1");
+//               setParity(UART_PARITY_BIT_8o1);
+//               break;
+//           }
+//         }
+//         break;
+//       case 'B':
+//         s = received_message.substring(1);
+//         DSerial("UART baud rate changed to "); DSerialln(s.toInt());
+//         setBaudRate(s.toInt());
+//         break;
+//       case 'A':
+//         s = received_message.substring(1);
+//         DSerial("Air data rate changed to "); DSerialln(s.toInt());
+//         setAirDataRate(s.toInt());
+//         break;
+//       case 'T':
+//         s = received_message.substring(1);
+//         DSerial("Transmission power changed to "); DSerialln(s.toInt());
+//         setTransmissionPower(s.toInt());
+//         break;
+//       case 'H':
+//         s = received_message.substring(1);
+//         DSerial("ADDH changed to "); DSerialln(s);
+//         setADDH(s.toInt());
+//         break;
+//       case 'L':
+//         s = received_message.substring(1);
+//         DSerial("ADDL changed to "); DSerialln(s);
+//         setADDL(s.toInt());
+//         break;
+//       case 'C':
+//         s = received_message.substring(1);
+//         DSerial("Channel changed to ");
+//         DSerialln(s);
+//         setChannel(s.toInt());
+//         break;
+//     }
+//   }
+//   setConfiguration();
+//   // setNormalMode();
+// }
 
 #ifdef DBG
 #undef DBG
