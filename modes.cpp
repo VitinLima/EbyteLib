@@ -76,13 +76,13 @@ void setOperationMode(OperationMode op){
       setNormalMode();
       break;
     case WAKE_UP:
-      setNormalMode();
+      setWakeUpMode();
       break;
     case POWER_SAVING:
-      setNormalMode();
+      setPowerSavingMode();
       break;
     case SLEEP:
-      setNormalMode();
+      setSleepMode();
       break;
   }
 }
