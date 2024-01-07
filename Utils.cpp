@@ -3,15 +3,15 @@
 
 uint8_t ver[4];
 
-void flush_e32serial(String msg){
-  delay(2000);
-  DSerial(msg);DSerial(" ");
-  while(e32serial.available()){
-    DSerial((uint8_t)e32serial.read(), HEX);
-    DSerial(" ");
-  }
-  DSerialln("");
-}
+// void flush_e32serial(String msg){
+//   delay(2000);
+//   DSerial(msg);DSerial(" ");
+//   while(e32serial.available()){
+//     DSerial((uint8_t)e32serial.read(), HEX);
+//     DSerial(" ");
+//   }
+//   DSerialln("");
+// }
 
 void flush(){
   while(e32serial.available()){
