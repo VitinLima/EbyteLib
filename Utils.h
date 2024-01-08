@@ -2,16 +2,23 @@
 #define UTILS_H
 
 #include "EbyteLib.h"
-#include "definitions.h"
-#include "Transmission.h"
-#include "modes.h"
-#include "configurations.h"
-#include "debugging.h"
-
-extern uint8_t ver[];
+// #include "definitions.h"
+// #include "Transmission.h"
+// #include "modes.h"
+// #include "configurations.h"
+// #include "debugging.h"
 
 // void flush_e32serial(String msg);
 void flush();
+
+bool waitForTimeout(bool (*foo()), unsigned long int timeout);
+bool waitForTimeout(bool *foo, unsigned long int timeout);
+
+uint8_t inverse_byte(uint8_t b);
+
+#ifdef DEBUGGING
+
+extern uint8_t ver[];
 
 void printHEAD();
 void printADDH();
@@ -31,11 +38,8 @@ void printVersionInformation();
 
 void printTransmissionResult(unsigned long int timeout);
 
-bool waitForTimeout(bool (*foo()), unsigned long int timeout);
-bool waitForTimeout(bool *foo, unsigned long int timeout);
-
 // void parseMessage(String received_message);
 
-uint8_t inverse_byte(uint8_t b);
+#endif
 
 #endif

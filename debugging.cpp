@@ -1,6 +1,8 @@
 #include "Arduino.h"
 #include "debugging.h"
 
+#ifdef DEBUGGING
+
 void tic(){
   ti = millis();
 }
@@ -34,3 +36,5 @@ void printHEX(uint8_t* buffer, unsigned int size){
   }
   Serial.println("");
 }
+
+#endif

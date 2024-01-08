@@ -1,6 +1,45 @@
 #include "Arduino.h"
 #include "Utils.h"
 
+void flush(){
+  while(e32serial.available()){
+    e32serial.read();
+  }
+}
+
+bool waitForTimeout(bool (*foo()), unsigned long int timeout){
+  long unsigned int timeout_limit = millis() + timeout;
+  while(millis() < timeout_limit){
+    if(foo()){
+      return true;
+    }
+  }
+  return false;
+}
+
+bool waitForTimeout(bool *foo, unsigned long int timeout){
+  long unsigned int timeout_limit = millis() + timeout;
+  while(millis() < timeout_limit){
+    if(*foo){
+      return true;
+    }
+  }
+  return false;
+}
+
+/* 
+  Found this elegant code here: https://forum.arduino.cc/t/quickly-reversing-a-byte/115529/3
+  Ended up not using it though
+*/
+uint8_t inverse_byte(uint8_t b){
+  b = ((b>>1) & 0x55) | ((b<<1) & 0xAA);
+  b = ((b>>2) & 0x33) | ((b<<2) & 0xCC);
+  b = (b>>4) | (b<<4);
+  return b;
+}
+
+#ifdef DEBUGGING
+
 uint8_t ver[4];
 
 // void flush_e32serial(String msg){
@@ -12,12 +51,6 @@ uint8_t ver[4];
 //   }
 //   DSerialln("");
 // }
-
-void flush(){
-  while(e32serial.available()){
-    e32serial.read();
-  }
-}
 
 void printHEAD(){
   Serial.print("Head: ");Serial.println(configuration.parameters.HEAD, HEX);
@@ -32,7 +65,6 @@ void printADDL(){
 }
 
 void printParity(){
-  const char *parity;
   // (param[2]&0xC0)>>6
   Serial.print("UART parity bit: ");
   switch(configuration.parameters.SPED.bits.UART_parity_bit){
@@ -214,26 +246,6 @@ void printTransmissionResult(unsigned long int timeout){
   Serial.println("Timeout");
 }
 
-bool waitForTimeout(bool (*foo()), unsigned long int timeout){
-  long unsigned int timeout_limit = millis() + timeout;
-  while(millis() < timeout_limit){
-    if(foo()){
-      return true;
-    }
-  }
-  return false;
-}
-
-bool waitForTimeout(bool *foo, unsigned long int timeout){
-  long unsigned int timeout_limit = millis() + timeout;
-  while(millis() < timeout_limit){
-    if(*foo){
-      return true;
-    }
-  }
-  return false;
-}
-
 void printVersionInformation(){
   Serial.print("Module version information: ");
 
@@ -246,13 +258,4 @@ void printVersionInformation(){
   Serial.println(ver[3], HEX);
 }
 
-/* 
-  Found this elegant code here: https://forum.arduino.cc/t/quickly-reversing-a-byte/115529/3
-  Ended up not using it though
-*/
-uint8_t inverse_byte(uint8_t b){
-  b = ((b>>1) & 0x55) | ((b<<1) & 0xAA);
-  b = ((b>>2) & 0x33) | ((b<<2) & 0xCC);
-  b = (b>>4) | (b<<4);
-  return b;
-}
+#endif

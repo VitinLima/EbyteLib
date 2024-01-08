@@ -1,9 +1,15 @@
 #ifndef EBYTE_LIB_H
 #define EBYTE_LIB_H
 
+#define UNBUFFERED_COMPILE
+
 #include "definitions.h"
 #include "modes.h"
+#ifdef UNBUFFERED_COMPILE
+#include "Transmission_no_buffer.h"
+#else
 #include "Transmission.h"
+#endif
 #include "configurations.h"
 #include "debugging.h"
 #include "Utils.h"

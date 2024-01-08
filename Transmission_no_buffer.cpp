@@ -1,17 +1,14 @@
 #include "Arduino.h"
-#include "Transmission.h"
+#include "Transmission_no_buffer.h"
 
-#ifndef UNBUFFERED_COMPILE
+#ifdef UNBUFFERED_COMPILE
 
 bool asyncronousTransmissionFlag = false;
-bool fifo_buffer_overflow = false;
-uint8_t fifo_buffer[FIFO_BUFFER_MAX_LENGTH];
+uint8_t *transmitting_buffer;
 unsigned int fifo_buffer_length = 0;
 unsigned int fifo_buffer_pointer = 0;
 unsigned int write_fifo_buffer_pointer = 0;
-const unsigned int fifo_buffer_max_length = FIFO_BUFFER_MAX_LENGTH;
 unsigned int payload_max_length = 58;
-uint8_t fifo_helper_buffer[58];
 
 bool hasCRC = false;
 uint8_t crcKey[2] = {0xaa, 0x1f};
@@ -38,7 +35,6 @@ void (*transmitting_function)(uint8_t *buffer, unsigned int size) = transmit;
 #endif
 
 void asyncronousTransmissionCallback(){
-  uint8_t *transmitting_buffer;
   DSerialln(fifo_buffer_length);
   DSerialln(fifo_buffer_pointer);
   DSerialln(fifo_buffer_max_length);
@@ -52,39 +48,9 @@ void asyncronousTransmissionCallback(){
     r = payload_max_length;
     last_packet = false;
   }
-  if(fifo_buffer_pointer+r <= fifo_buffer_max_length){ // faster
-    DSerialln("Transmitting buffer fifo");
-    transmitting_buffer = (uint8_t*)&fifo_buffer[fifo_buffer_pointer];
-    fifo_buffer_pointer += r;
-  } else{ // use helper fifo, have to copy contents, slightly slower
-    DSerialln("Transmitting buffer helper");
-    transmitting_buffer = (uint8_t*)fifo_helper_buffer;
-    uint8_t k = 0;
-    // unsigned int i = ;
-    while(fifo_buffer_pointer < fifo_buffer_max_length){
-      DSerial(k);
-      DSerial(" ");
-      DSerial(fifo_buffer_pointer);
-      DSerial(" ");
-      DSerial(fifo_buffer[fifo_buffer_pointer]);
-      DSerial(" ");
-      DSerialln(r);
-      fifo_helper_buffer[k++] = fifo_buffer[fifo_buffer_pointer++];
-    }
-    DSerialln("Second part");
-    fifo_buffer_pointer = 0;
-    while(k < r){
-      DSerial(k);
-      DSerial(" ");
-      DSerial(fifo_buffer_pointer);
-      DSerial(" ");
-      DSerial(fifo_buffer[fifo_buffer_pointer]);
-      DSerial(" ");
-      DSerialln(r);
-      fifo_helper_buffer[k++] = fifo_buffer[fifo_buffer_pointer++];
-    }
-  }
-  write(transmitting_buffer, r);
+  DSerialln("Transmitting buffer fifo");
+  write(&transmitting_buffer[fifo_buffer_pointer], r);
+  fifo_buffer_pointer += r;
   fifo_buffer_length -= r;
   if(last_packet){ // can send all remaining bytes together
     DSerialln("Last packet");
@@ -93,39 +59,17 @@ void asyncronousTransmissionCallback(){
   } else{ // send next payload_max_length bytes, wait for finishing and send the rest
     DSerialln("Transmitting packet");
   }
-  if(fifo_buffer_pointer==fifo_buffer_max_length){
-    fifo_buffer_pointer = 0;
-  }
   DSerialln(fifo_buffer_length);
   DSerialln(fifo_buffer_pointer);
   DSerialln("");
   DSerialln("");
 }
 
-void write_to_fifo(uint8_t* buffer, unsigned int size){
-  unsigned int k = 0;
+void set_fifo(uint8_t* buffer, unsigned int size){
   DSerialln("Writing to fifo");
-  if(write_fifo_buffer_pointer+size <= fifo_buffer_max_length){
-    while(k < size){
-      fifo_buffer[write_fifo_buffer_pointer++] = buffer[k++];
-      DSerialln(fifo_buffer[write_fifo_buffer_pointer-1], HEX);
-    }
-    if(write_fifo_buffer_pointer==fifo_buffer_max_length){
-      write_fifo_buffer_pointer = 0;
-    }
-  } else {
-    while(write_fifo_buffer_pointer < fifo_buffer_max_length){
-      fifo_buffer[write_fifo_buffer_pointer++] = buffer[k++];
-      DSerialln(fifo_buffer[write_fifo_buffer_pointer-1], HEX);
-    }
-    DSerialln("Second part");
-    write_fifo_buffer_pointer = 0;
-    while(k < size){
-      fifo_buffer[write_fifo_buffer_pointer++] = buffer[k++];
-      DSerialln(fifo_buffer[write_fifo_buffer_pointer-1], HEX);
-    }
-  }
-  fifo_buffer_length += size;
+  transmitting_buffer = buffer;
+  fifo_buffer_length = size;
+  fifo_buffer_pointer = 0;
 }
 
 #ifdef DBG
@@ -135,10 +79,6 @@ void write_to_fifo(uint8_t* buffer, unsigned int size){
 #define ON_DEBUG(x)
 #define Dinput(x)
 #endif
-
-// void write_to_fifo(uint8_t byte){
-//   ((uint8_t*)fifo_buffer)[write_fifo_buffer_pointer++] = byte;
-// }
 
 void print(const char* message){
   auxHighFlag = false;
@@ -303,7 +243,7 @@ void asynchronousWrite(uint8_t* buffer, unsigned int size){
     DSerialln("Starting asynchronous transmission");
     DSerialln("writing to fifo");
     DSerialln(size-payload_max_length);
-    write_to_fifo(&buffer[payload_max_length], size-payload_max_length);
+    set_fifo(&buffer[payload_max_length], size-payload_max_length);
     DSerialln("Setting async flag");
     asyncronousTransmissionFlag = true;
     DSerialln("First transmission"); // Send first payload_max_length bytes, then the interrupts will ensure the rest is sent

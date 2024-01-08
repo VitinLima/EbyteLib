@@ -2,7 +2,7 @@
 #include "EbyteLib.h"
 
 bool receivingFlag = false;
-extern bool writing_to_device = false;
+bool writing_to_device = false;
 bool transmission_finished = false;
 bool transmission_started = false;
 
@@ -96,6 +96,10 @@ void auxRisingISR(){
         receiveCallback();
       }
       break;
+    case WAKE_UP:
+      break;
+    case POWER_SAVING:
+      break;
     case SLEEP:
       break;
   }
@@ -113,6 +117,10 @@ void auxFallingISR(){
       } else{
         reception_started = true;
       }
+      break;
+    case WAKE_UP:
+      break;
+    case POWER_SAVING:
       break;
     case SLEEP:
       break;

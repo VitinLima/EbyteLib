@@ -3,9 +3,9 @@
 
 #include <SoftwareSerial.h>
 
-#include "definitions.h"
-#include "modes.h"
 #include "EbyteLib.h"
+// #include "definitions.h"
+// #include "modes.h"
 
 extern const int Rx;
 extern const int Tx;
