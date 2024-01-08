@@ -8,7 +8,7 @@
 #include "debugging.h"
 #include "Utils.h"
 
-#define FIFO_BUFFER_MAX_LENGTH 256
+#define FIFO_BUFFER_MAX_LENGTH 64
 
 extern bool asyncronousTransmissionFlag;
 extern bool fifo_buffer_overflow;
