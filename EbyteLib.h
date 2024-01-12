@@ -22,8 +22,16 @@ extern bool transmission_finished;
 extern bool reception_started;
 extern bool reception_finished;
 
-extern void (*receiveCallback)();
+extern bool packet_received;
+extern uint8_t receiving_buffer[58];
+extern unsigned int receiving_buffer_length;
+extern bool hasReceiveCallback;
+extern void (*receiveCallback)(uint8_t* receivedBuffer, unsigned int size);
+
 void defaultReceiveCallback();
+void processPacket(void (*cb)(uint8_t* receivedBuffer, unsigned int size));
+void setReceiveCallback(void (*cb)(uint8_t* receivedBuffer, unsigned int size));
+void unsetReceiveCallback();
 
 class EByte32LoRa{
     public:

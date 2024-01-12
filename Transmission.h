@@ -10,7 +10,7 @@
 
 #ifndef UNBUFFERED_COMPILE
 
-#pragma message("Compiling transmission with buffer")
+// #pragma message("Compiling transmission with buffer")
 
 #define FIFO_BUFFER_MAX_LENGTH 64
 

@@ -10,7 +10,7 @@
 
 #ifdef UNBUFFERED_COMPILE
 
-#pragma message("Compiling transmission without buffer")
+// #pragma message("Compiling transmission without buffer")
 
 extern bool asyncronousTransmissionFlag;
 extern uint8_t* transmitting_buffer;
