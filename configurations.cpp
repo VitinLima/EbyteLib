@@ -1,8 +1,8 @@
 #include "Arduino.h"
 #include "configurations.h"
 
-const int Rx = 9;
-const int Tx = 10;
+const int Rx = 5;
+const int Tx = 6;
 
 SoftwareSerial e32serial(Rx, Tx);
 
